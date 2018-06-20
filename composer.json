@@ -1,0 +1,39 @@
+{
+	"name": "chillerlan/php-imagetiler",
+	"description": "An image tile generator. PHP 7.2+",
+	"homepage": "https://github.com/chillerlan/php-imagetiler",
+	"license": "MIT",
+	"minimum-stability": "stable",
+	"type": "library",
+	"keywords": [
+		"image", "tile", "generator", "leaflet", "maps"
+	],
+	"authors": [
+		{
+			"name": "Smiley",
+			"email": "smiley@chillerlan.net",
+			"homepage": "https://github.com/codemasher"
+		}
+	],
+	"require": {
+		"php": ">=7.2.0",
+		"ext-imagick": "*",
+		"chillerlan/php-traits": "^1.1",
+		"psr/log": "^1.0"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "^7.2",
+		"chillerlan/php-log": "^1.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"chillerlan\\Imagetiler\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"chillerlan\\ImagetilerTest\\": "tests/",
+			"chillerlan\\ImagetilerExamples\\": "examples/"
+		}
+	}
+}
