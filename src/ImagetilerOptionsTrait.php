@@ -50,10 +50,10 @@ trait ImagetilerOptionsTrait{
 	protected $zoom_normalize = null;
 
 	/**
-	 * if true - the origin will be set to bottom left, +y upwards
+	 * if set to true - the origin will be set to bottom left, +y upwards
 	 * @see http://wiki.osgeo.org/wiki/Tile_Map_Service_Specification#TileMap_Diagram
 	 *
-	 * otherwise origin is on the top left, +y downwards (default)
+	 * otherwise the origin is on the top left, +y downwards (default)
 	 * @see https://developers.google.com/maps/documentation/javascript/coordinates#tile-coordinates
 	 *
 	 * @var bool
