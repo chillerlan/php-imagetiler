@@ -20,11 +20,6 @@ class Imagetiler implements LoggerAwareInterface{
 	use LoggerAwareTrait;
 
 	/**
-	 * @var string
-	 */
-	protected $ext;
-
-	/**
 	 * @var \chillerlan\Imagetiler\ImagetilerOptions
 	 */
 	protected $options;
@@ -54,12 +49,15 @@ class Imagetiler implements LoggerAwareInterface{
 	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
 	public function setOptions(ContainerInterface $options):Imagetiler{
-
 		$options->zoom_min = max(0, $options->zoom_min);
 		$options->zoom_max = max(1, $options->zoom_max);
 
 		if($options->zoom_normalize === null || $options->zoom_max < $options->zoom_normalize){
 			$options->zoom_normalize = $options->zoom_max;
+		}
+
+		if($options->tile_ext === null){
+			$options->tile_ext = $this->getExtension($options->tile_format);
 		}
 
 		$this->options = $options;
@@ -77,7 +75,6 @@ class Imagetiler implements LoggerAwareInterface{
 			putenv('MAGICK_TEMPORARY_PATH='.$this->options->imagick_tmp);
 		}
 
-		$this->ext = $this->getExtension();
 
 		return $this;
 	}
@@ -103,48 +100,52 @@ class Imagetiler implements LoggerAwareInterface{
 
 		}
 
-		// prepare base images for each zoom level
 		$this->prepareZoomBaseImages($image_path, $out_path);
 
-		// create tiles for each zoom level
 		for($i = $this->options->zoom_min; $i <= $this->options->zoom_max; $i++){
 			$this->createTilesForZoom($out_path, $i);
 		}
 
 		// clean up base images
 		if($this->options->clean_up){
-			$this->removeZoomBaseImages($out_path);
+
+			for($i = $this->options->zoom_min; $i <= $this->options->zoom_max; $i++){
+				$lvl_file = $out_path.'/'.$i.'.'.$this->options->tile_ext;
+
+				if(is_file($lvl_file)){
+					if(unlink($lvl_file)){
+						$this->logger->info('deleted base image for zoom level '.$i.': '.$lvl_file);
+					}
+				}
+			}
+
 		}
 
 		return $this;
 	}
 
 	/**
-	 * prepare each zoom lvl base images
+	 * prepare base images for each zoom level
 	 *
 	 * @param string $image_path
 	 * @param string $out_path
 	 */
 	protected function prepareZoomBaseImages(string $image_path, string $out_path):void{
-
-		//load main image
 		$im = new Imagick($image_path);
 		$im->setImageFormat($this->options->tile_format);
 
-		//get image size
 		$width  = $im->getimagewidth();
 		$height = $im->getImageHeight();
 
 		$this->logger->info('input image loaded: ['.$width.'x'.$height.'] '.$image_path);
 
-		//prepare each zoom lvl base images
 		$start = true;
 		$il    = null;
 
 		for($zoom = $this->options->zoom_max; $zoom >= $this->options->zoom_min; $zoom--){
-			$base_image = $out_path.'/'.$zoom.'.'.$this->ext;
+			$base_image = $out_path.'/'.$zoom.'.'.$this->options->tile_ext;
 
-			//check if already exist
+			// check if the base image already exists
 			if(!$this->options->overwrite_base_image && is_file($base_image)){
 				$this->logger->info('base image for zoom level '.$zoom.' already exists: '.$base_image);
 				continue;
@@ -152,7 +153,7 @@ class Imagetiler implements LoggerAwareInterface{
 
 			[$w, $h] = $this->getSize($width, $height, $zoom);
 
-			//fit main image to current zoom lvl
+			// fit main image to current zoom level
 			$il = $start ? clone $im : $il;
 
 			$this->options->fast_resize === true
@@ -161,27 +162,22 @@ class Imagetiler implements LoggerAwareInterface{
 				// resizeImage - works slower but offers better quality
 				: $il->resizeImage($w, $h, $this->options->resize_filter, $this->options->resize_blur);
 
-			//store
 			$this->imageSave($il, $base_image);
 
-			//clear
 			if($start){
-				$im->clear();
-				$im->destroy();
+				$this->clearImage($im);
 			}
 
 			$start = false;
 			$this->logger->info('created image for zoom level '.$zoom.' ['.$w.'x'.$h.'] '.$base_image);
 		}
 
-		//free resurce, destroy imagick object
-		if($il instanceof Imagick){
-			$il->clear();
-			$il->destroy();
-		}
+		$this->clearImage($il);
 	}
 
 	/**
+	 * create tiles for each zoom level
+	 *
 	 * @param string $out_path
 	 * @param int    $zoom
 	 *
@@ -189,7 +185,7 @@ class Imagetiler implements LoggerAwareInterface{
 	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
 	protected function createTilesForZoom(string $out_path, int $zoom):void{
-		$base_image = $out_path.'/'.$zoom.'.'.$this->ext;
+		$base_image = $out_path.'/'.$zoom.'.'.$this->options->tile_ext;
 
 		//load image
 		if(!is_file($base_image) || !is_readable($base_image)){
@@ -211,9 +207,13 @@ class Imagetiler implements LoggerAwareInterface{
 		for($ix = 0; $ix < $x; $ix++){
 			$cx = $ix * $ts;
 
+			// create a stripe tile_size * height
+			$ci = clone $im;
+			$ci->cropImage($ts, $h, $cx, 0);
+
 			// height
 			for($iy = 0; $iy < $y; $iy++){
-				$tile = $out_path.'/'.sprintf($this->options->store_structure, $zoom, $ix, $iy).'.'.$this->ext;
+				$tile = $out_path.'/'.sprintf($this->options->store_structure, $zoom, $ix, $iy).'.'.$this->options->tile_ext;
 
 				// check if tile already exists
 				if(!$this->options->overwrite_tile_image && is_file($tile)){
@@ -222,13 +222,14 @@ class Imagetiler implements LoggerAwareInterface{
 					continue;
 				}
 
-				$ti = clone $im;
-
+				// cut the stripe into pieces of height = tile_size
 				$cy = $this->options->tms
 					? $h - ($iy + 1) * $ts
 					: $iy * $ts;
 
-				$ti->cropImage($ts, $ts, $cx, $cy);
+				$ti = clone $ci;
+				$ti->setImagePage(0, 0, 0, 0);
+				$ti->cropImage($ts, $ts, 0, $cy);
 
 				// check if the current tile is smaller than the tile size (leftover edges on the input image)
 				if($ti->getImageWidth() < $ts || $ti->getimageheight() < $ts){
@@ -241,40 +242,16 @@ class Imagetiler implements LoggerAwareInterface{
 					$ti->extentImage($ts, $ts, 0, $th);
 				}
 
-				// save
 				$this->imageSave($ti, $tile);
-
-				$ti->clear();
-				$ti->destroy();
+				$this->clearImage($ti);
 			}
+
+			$this->clearImage($ci);
 		}
 
-		// clear resources
-		$im->clear();
-		$im->destroy();
+		$this->clearImage($im);
 
 		$this->logger->info('created tiles for zoom level: '.$zoom);
-	}
-
-	/**
-	 * remove zoom lvl base images
-	 *
-	 * @param string $out_path
-	 *
-	 * @return void
-	 */
-	protected function removeZoomBaseImages(string $out_path):void{
-
-		for($i = $this->options->zoom_min; $i <= $this->options->zoom_max; $i++){
-			$lvl_file = $out_path.'/'.$i.'.'.$this->ext;
-
-			if(is_file($lvl_file)){
-				if(unlink($lvl_file)){
-					$this->logger->info('deleted base image for zoom level '.$i.': '.$lvl_file);
-				}
-			}
-		}
-
 	}
 
 	/**
@@ -287,8 +264,6 @@ class Imagetiler implements LoggerAwareInterface{
 	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
 	protected function imageSave(Imagick $image, string $dest):void{
-
-		//prepare folder
 		$dir = dirname($dest);
 
 		if(!is_dir($dir)){
@@ -297,21 +272,38 @@ class Imagetiler implements LoggerAwareInterface{
 			}
 		}
 
-		//prepare to save
 		if($this->options->tile_format === 'jpeg'){
 			$image->setCompression(Imagick::COMPRESSION_JPEG);
 			$image->setCompressionQuality($this->options->quality_jpeg);
 		}
 
-		//save image
 		if(!$image->writeImage($dest)){
 			throw new ImagetilerException('cannot save image '.$dest);
 		}
 
 	}
 
+	/**
+	 * free resources, destroy imagick object
+	 *
+	 * @param \Imagick|null $image
+	 *
+	 * @return bool
+	 */
+	protected function clearImage(Imagick $image = null):bool{
+
+		if($image instanceof Imagick){
+			$image->clear();
+
+			return $image->destroy();
+		}
+
+		return false;
+	}
 
 	/**
+	 * calculate the image size for the given zoom level
+	 *
 	 * @param int $width
 	 * @param int $height
 	 * @param int $zoom
@@ -338,18 +330,18 @@ class Imagetiler implements LoggerAwareInterface{
 	/**
 	 * return file extension depend of given format
 	 *
+	 * @param string $format
+	 *
 	 * @return string
 	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
-	protected function getExtension():string{
-		$fmt = strtolower($this->options->tile_format);
+	protected function getExtension(string $format):string{
 
-		if(in_array($fmt, ['jpeg', 'jp2', 'jpc', 'jxr',], true)){
+		if(in_array($format, ['jpeg', 'jp2', 'jpc', 'jxr',], true)){
 			return 'jpg';
 		}
 
-		if(in_array(
-			$fmt, ['png', 'png00', 'png8', 'png24', 'png32', 'png64',], true)){
+		if(in_array($format, ['png', 'png00', 'png8', 'png24', 'png32', 'png64',], true)){
 			return 'png';
 		}
 
