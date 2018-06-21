@@ -265,7 +265,7 @@ class Imagetiler implements LoggerAwareInterface{
 			}
 
 			$this->clearImage($ci);
-			$this->logger->info('created column '.($ix+1).', x = '.$cx);
+			$this->logger->info('created column '.$ix.', x = '.$cx);
 		}
 
 		$this->clearImage($im);
