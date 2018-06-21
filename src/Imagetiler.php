@@ -214,11 +214,10 @@ class Imagetiler implements LoggerAwareInterface{
 	 * @param \Imagick                       $im
 	 * @param int                            $zoom
 	 * @param string                         $out_path
-	 * @param \ImageOptimizer\Optimizer|null $optimizer
 	 *
 	 * @return void
 	 */
-	protected function createTilesForZoom(Imagick $im, int $zoom, string $out_path, Optimizer $optimizer = null):void{
+	protected function createTilesForZoom(Imagick $im, int $zoom, string $out_path):void{
 		$w = $im->getimagewidth();
 		$h = $im->getImageHeight();
 
