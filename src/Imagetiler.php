@@ -14,7 +14,6 @@ namespace chillerlan\Imagetiler;
 
 use chillerlan\Traits\ContainerInterface;
 use ImageOptimizer\Optimizer;
-use ImageOptimizer\OptimizerFactory;
 use Imagick;
 use Psr\Log\{LoggerAwareInterface, LoggerAwareTrait, LoggerInterface, NullLogger};
 
@@ -27,14 +26,20 @@ class Imagetiler implements LoggerAwareInterface{
 	protected $options;
 
 	/**
+	 * @var \ImageOptimizer\Optimizer
+	 */
+	protected $optimizer;
+
+	/**
 	 * Imagetiler constructor.
 	 *
 	 * @param \chillerlan\Traits\ContainerInterface|null $options
+	 * @param \ImageOptimizer\Optimizer                  $optimizer
 	 * @param \Psr\Log\LoggerInterface|null              $logger
 	 *
 	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
-	public function __construct(ContainerInterface $options = null, LoggerInterface $logger = null){
+	public function __construct(ContainerInterface $options = null, Optimizer $optimizer = null, LoggerInterface $logger = null){
 
 		if(!extension_loaded('imagick')){
 			throw new ImagetilerException('Imagick extension is not available');
@@ -42,6 +47,10 @@ class Imagetiler implements LoggerAwareInterface{
 
 		$this->setOptions($options ?? new ImagetilerOptions);
 		$this->setLogger($logger ?? new NullLogger);
+
+		if($optimizer instanceof Optimizer){
+			$this->setOptimizer($optimizer);
+		}
 	}
 
 	/**
@@ -82,6 +91,17 @@ class Imagetiler implements LoggerAwareInterface{
 	}
 
 	/**
+	 * @param \ImageOptimizer\Optimizer $optimizer
+	 *
+	 * @return \chillerlan\Imagetiler\Imagetiler
+	 */
+	public function setOptimizer(Optimizer $optimizer):Imagetiler{
+		$this->optimizer = $optimizer;
+
+		return $this;
+	}
+
+	/**
 	 * @param string $image_path
 	 * @param string $out_path
 	 *
@@ -102,13 +122,6 @@ class Imagetiler implements LoggerAwareInterface{
 
 		}
 
-		// load the optional image optimizer
-		$optimizer = null;
-
-		if($this->options->optimize_output){
-			$optimizer = (new OptimizerFactory($this->options->optimizer_settings, $this->logger))->get();
-		}
-
 		// prepare the zoom base images
 		$this->prepareZoomBaseImages($image_path, $out_path);
 
@@ -122,7 +135,7 @@ class Imagetiler implements LoggerAwareInterface{
 				throw new ImagetilerException('cannot read base image '.$base_image.' for zoom '.$zoom);
 			}
 
-			$this->createTilesForZoom(new Imagick($base_image), $zoom, $out_path, $optimizer);
+			$this->createTilesForZoom(new Imagick($base_image), $zoom, $out_path);
 		}
 
 		// clean up base images
@@ -269,12 +282,11 @@ class Imagetiler implements LoggerAwareInterface{
 	 *
 	 * @param Imagick                   $image
 	 * @param string                    $dest full path with file name
-	 * @param \ImageOptimizer\Optimizer $optimizer
 	 *
 	 * @return void
 	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
-	protected function saveImage(Imagick $image, string $dest, Optimizer $optimizer = null):void{
+	protected function saveImage(Imagick $image, string $dest):void{
 		$dir = dirname($dest);
 
 		if(!is_dir($dir)){
@@ -292,8 +304,8 @@ class Imagetiler implements LoggerAwareInterface{
 			throw new ImagetilerException('cannot save image '.$dest);
 		}
 
-		if($optimizer instanceof Optimizer){
-			$optimizer->optimize($dest);
+		if($this->options->optimize_output && $this->optimizer instanceof Optimizer){
+			$this->optimizer->optimize($dest);
 		}
 
 	}

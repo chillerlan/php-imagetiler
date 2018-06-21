@@ -34,7 +34,6 @@ use chillerlan\Traits\ContainerAbstract;
  * @property bool $overwrite_tile_image
  * @property bool $clean_up
  * @property bool $optimize_output
- * @property array $optimizer_settings
  */
 class ImagetilerOptions extends ContainerAbstract{
 	use ImagetilerOptionsTrait;
