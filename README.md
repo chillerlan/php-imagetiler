@@ -68,11 +68,15 @@ $options = new ImagetilerOptions([
 	'zoom_normalize'       => 6,
 	'fill_color'           => 'transparent',
 	'fast_resize'          => true,
+	'optimize_output'      => true,
 	// ... whatever you need
 ]);
 
+// see https://github.com/psliwa/image-optimizer#configuration
+$optimizer = (new OptimizerFactory([]))->get();
+
 // invoke and run the tiler
-$tiler  = new Imagetiler($options);
+$tiler  = new Imagetiler($options, $optimizer);
 $tiler->process('/path/to/image.png', '/path/to/output/');
 ```
 
@@ -85,6 +89,7 @@ method | return | description
 ------ | ------ | -----------
 `__construct(ContainerInterface $options = null, LoggerInterface $logger = null)` | - | see [`ContainerInterface`](https://github.com/chillerlan/php-traits/blob/master/src/ContainerInterface.php) and [`LoggerInterface`](https://github.com/php-fig/log). Invokes an empty `ImagetilerOptions` object and a `Psr\NullLogger` if the respective parameters aren't set.
 `setOptions(ContainerInterface $options)` | `Imagetiler` | set options on-the-fly, called internally by the constructor
+`setOptimizer(Optimizer $optimizer)` | `Imagetiler` | set an optimizer instance on-the-fly, called internally by the constructor
 `process(string $image_path, string $out_path)` | `Imagetiler` | processes the given image from `$image_path` and dumps the output to `$out_path`
 
 ### `ImagetilerOptions` properties
@@ -108,5 +113,4 @@ property | type | default | allowed | description
 `$overwrite_base_image` | bool | false | * | 
 `$overwrite_tile_image` | bool | false | * | 
 `$clean_up` | bool | true | * | whether or not to delete temp images
-`$optimize_output` | bool | false | * | enable image optimization
-`$optimizer_settings` | array | [] | * | image optimizer settings, see [ImageOptimizer configuration](https://github.com/psliwa/image-optimizer#configuration)
+`$optimize_output` | bool | false | * | enable image optimization (requires `Optimizer` instance)
