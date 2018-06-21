@@ -40,7 +40,7 @@ $logger = (new Log)->addInstance(new ConsoleLog($options), 'console');
 $tiler  = new Imagetiler($options, $logger);
 
 try{
-	$tiler->process($input, __DIR__);
+	$tiler->process($input, __DIR__.'/tiles');
 }
 catch(ImagetilerException $e){
 	echo $e->getMessage();
