@@ -147,4 +147,13 @@ trait ImagetilerOptionsTrait{
 	 */
 	protected $clean_up = true;
 
+	/**
+	 * @var bool
+	 */
+	protected $optimize_output = false;
+
+	/**
+	 * @var array
+	 */
+	protected $optimizer_settings = [];
 }

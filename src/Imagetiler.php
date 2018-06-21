@@ -13,6 +13,8 @@
 namespace chillerlan\Imagetiler;
 
 use chillerlan\Traits\ContainerInterface;
+use ImageOptimizer\Optimizer;
+use ImageOptimizer\OptimizerFactory;
 use Imagick;
 use Psr\Log\{LoggerAwareInterface, LoggerAwareTrait, LoggerInterface, NullLogger};
 
@@ -100,21 +102,38 @@ class Imagetiler implements LoggerAwareInterface{
 
 		}
 
+		// load the optional image optimizer
+		$optimizer = null;
+
+		if($this->options->optimize_output){
+			$optimizer = (new OptimizerFactory($this->options->optimizer_settings, $this->logger))->get();
+		}
+
+		// prepare the zoom base images
 		$this->prepareZoomBaseImages($image_path, $out_path);
 
-		for($i = $this->options->zoom_min; $i <= $this->options->zoom_max; $i++){
-			$this->createTilesForZoom($out_path, $i);
+		// create the tiles
+		for($zoom = $this->options->zoom_min; $zoom <= $this->options->zoom_max; $zoom++){
+
+			$base_image = $out_path.'/'.$zoom.'.'.$this->options->tile_ext;
+
+			//load image
+			if(!is_file($base_image) || !is_readable($base_image)){
+				throw new ImagetilerException('cannot read base image '.$base_image.' for zoom '.$zoom);
+			}
+
+			$this->createTilesForZoom(new Imagick($base_image), $zoom, $out_path, $optimizer);
 		}
 
 		// clean up base images
 		if($this->options->clean_up){
 
-			for($i = $this->options->zoom_min; $i <= $this->options->zoom_max; $i++){
-				$lvl_file = $out_path.'/'.$i.'.'.$this->options->tile_ext;
+			for($zoom = $this->options->zoom_min; $zoom <= $this->options->zoom_max; $zoom++){
+				$lvl_file = $out_path.'/'.$zoom.'.'.$this->options->tile_ext;
 
 				if(is_file($lvl_file)){
 					if(unlink($lvl_file)){
-						$this->logger->info('deleted base image for zoom level '.$i.': '.$lvl_file);
+						$this->logger->info('deleted base image for zoom level '.$zoom.': '.$lvl_file);
 					}
 				}
 			}
@@ -178,23 +197,14 @@ class Imagetiler implements LoggerAwareInterface{
 	/**
 	 * create tiles for each zoom level
 	 *
-	 * @param string $out_path
-	 * @param int    $zoom
+	 * @param \Imagick                       $im
+	 * @param int                            $zoom
+	 * @param string                         $out_path
+	 * @param \ImageOptimizer\Optimizer|null $optimizer
 	 *
 	 * @return void
-	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
-	protected function createTilesForZoom(string $out_path, int $zoom):void{
-		$base_image = $out_path.'/'.$zoom.'.'.$this->options->tile_ext;
-
-		//load image
-		if(!is_file($base_image) || !is_readable($base_image)){
-			throw new ImagetilerException('cannot read base image '.$base_image.' for zoom '.$zoom);
-		}
-
-		$im = new Imagick($base_image);
-
-		//get image size
+	protected function createTilesForZoom(Imagick $im, int $zoom, string $out_path, Optimizer $optimizer = null):void{
 		$w = $im->getimagewidth();
 		$h = $im->getImageHeight();
 
@@ -242,7 +252,7 @@ class Imagetiler implements LoggerAwareInterface{
 					$ti->extentImage($ts, $ts, 0, $th);
 				}
 
-				$this->saveImage($ti, $tile);
+				$this->saveImage($ti, $tile, $optimizer);
 				$this->clearImage($ti);
 			}
 
@@ -257,13 +267,14 @@ class Imagetiler implements LoggerAwareInterface{
 	/**
 	 * save image in to destination
 	 *
-	 * @param Imagick $image
-	 * @param string  $dest full path with file name
+	 * @param Imagick                   $image
+	 * @param string                    $dest full path with file name
+	 * @param \ImageOptimizer\Optimizer $optimizer
 	 *
 	 * @return void
 	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
-	protected function saveImage(Imagick $image, string $dest):void{
+	protected function saveImage(Imagick $image, string $dest, Optimizer $optimizer = null):void{
 		$dir = dirname($dest);
 
 		if(!is_dir($dir)){
@@ -279,6 +290,10 @@ class Imagetiler implements LoggerAwareInterface{
 
 		if(!$image->writeImage($dest)){
 			throw new ImagetilerException('cannot save image '.$dest);
+		}
+
+		if($optimizer instanceof Optimizer){
+			$optimizer->optimize($dest);
 		}
 
 	}
