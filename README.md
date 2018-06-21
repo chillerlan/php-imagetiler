@@ -101,6 +101,7 @@ property | type | default | allowed | description
 `$resize_filter` | int | `Imagick::FILTER_ROBIDOUXSHARP` | `Imagick::FILTER_*` | see `Imagick::resizeImage()` and [Imagick filter constants](https://secure.php.net/manual/imagick.constants.php)
 `$resize_blur` | float | 1.0 | positive float | see `Imagick::resizeImage()`
 `$tile_format` | string | 'png' | png, jpg | see [Imagick formats](http://www.imagemagick.org/script/formats.php)
+`$tile_ext` | string | null | * | tile image extension - autodetected from format if none given.
 `$quality_jpeg` | int | 80 | 0-100 | quality of the saved image in jpeg format
 `$imagick_tmp` | string | null | * | ImageMagick tmp folder
 `$overwrite_base_image` | bool | false | * | 

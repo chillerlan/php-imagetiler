@@ -111,6 +111,13 @@ trait ImagetilerOptionsTrait{
 	protected $tile_format = 'png';
 
 	/**
+	 * tile image extension - autodetected from format if none given
+	 *
+	 * @var string
+	 */
+	protected $tile_ext = null;
+
+	/**
 	 * quality of the saved image in jpeg format
 	 *
 	 * @var int

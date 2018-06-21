@@ -27,6 +27,7 @@ use chillerlan\Traits\ContainerAbstract;
  * @property int $resize_filter
  * @property float $resize_blur
  * @property string $tile_format
+ * @property string $tile_ext
  * @property int $quality_jpeg
  * @property string $imagick_tmp
  * @property bool $overwrite_base_image
