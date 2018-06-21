@@ -247,11 +247,11 @@ class Imagetiler implements LoggerAwareInterface{
 			}
 
 			$this->clearImage($ci);
+			$this->logger->info('created column '.($ix+1).', x = '.$cx);
 		}
 
 		$this->clearImage($im);
-
-		$this->logger->info('created tiles for zoom level: '.$zoom);
+		$this->logger->info('created tiles for zoom level: '.$zoom.', '.$y.' tile(s) per column');
 	}
 
 	/**
