@@ -218,13 +218,10 @@ class Imagetiler implements LoggerAwareInterface{
 	 * @return void
 	 */
 	protected function createTilesForZoom(Imagick $im, int $zoom, string $out_path):void{
-		$w = $im->getimagewidth();
-		$h = $im->getImageHeight();
-
 		$ts = $this->options->tile_size;
-
-		$x = (int)ceil($w / $ts);
-		$y = (int)ceil($h / $ts);
+		$h  = $im->getImageHeight();
+		$x  = (int)ceil($im->getimagewidth() / $ts);
+		$y  = (int)ceil($h / $ts);
 
 		// width
 		for($ix = 0; $ix < $x; $ix++){
@@ -257,9 +254,7 @@ class Imagetiler implements LoggerAwareInterface{
 				// check if the current tile is smaller than the tile size (leftover edges on the input image)
 				if($ti->getImageWidth() < $ts || $ti->getimageheight() < $ts){
 
-					$th = $this->options->tms
-						? $im->getImageHeight() - $ts
-						: 0;
+					$th = $this->options->tms ? $h - $ts : 0;
 
 					$ti->setImageBackgroundColor($this->options->fill_color);
 					$ti->extentImage($ts, $ts, 0, $th);
