@@ -34,6 +34,7 @@ This script will keep the proportions of the input image and generate only neces
 - PHP 7.2+
 - the [ImageMagick extension](https://www.imagemagick.org)
 - a crapload of RAM, CPU power and free disk space
+- image optimization utilities (optional), see [psliwa/image-optimizer](https://github.com/psliwa/image-optimizer#supported-optimizers)
 
 ## Installation
 **requires [composer](https://getcomposer.org)**
@@ -107,3 +108,5 @@ property | type | default | allowed | description
 `$overwrite_base_image` | bool | false | * | 
 `$overwrite_tile_image` | bool | false | * | 
 `$clean_up` | bool | true | * | whether or not to delete temp images
+`$optimize_output` | bool | false | * | enable image optimization
+`$optimizer_settings` | array | [] | * | image optimizer settings, see [ImageOptimizer configuration](https://github.com/psliwa/image-optimizer#configuration)
