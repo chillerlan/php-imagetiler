@@ -194,7 +194,8 @@ class Imagetiler implements LoggerAwareInterface{
 				// resizeImage - works slower but offers better quality
 				: $il->resizeImage($w, $h, $this->options->resize_filter, $this->options->resize_blur);
 
-			$this->saveImage($il, $base_image);
+			// save without optimizing
+			$this->saveImage($il, $base_image, false);
 
 			if($start){
 				$this->clearImage($im);
@@ -265,7 +266,7 @@ class Imagetiler implements LoggerAwareInterface{
 					$ti->extentImage($ts, $ts, 0, $th);
 				}
 
-				$this->saveImage($ti, $tile, $optimizer);
+				$this->saveImage($ti, $tile, true);
 				$this->clearImage($ti);
 			}
 
@@ -280,13 +281,14 @@ class Imagetiler implements LoggerAwareInterface{
 	/**
 	 * save image in to destination
 	 *
-	 * @param Imagick                   $image
-	 * @param string                    $dest full path with file name
+	 * @param Imagick $image
+	 * @param string  $dest full path with file name
+	 * @param bool    $optimize
 	 *
 	 * @return void
 	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
-	protected function saveImage(Imagick $image, string $dest):void{
+	protected function saveImage(Imagick $image, string $dest, bool $optimize):void{
 		$dir = dirname($dest);
 
 		if(!is_dir($dir)){
@@ -304,7 +306,7 @@ class Imagetiler implements LoggerAwareInterface{
 			throw new ImagetilerException('cannot save image '.$dest);
 		}
 
-		if($this->options->optimize_output && $this->optimizer instanceof Optimizer){
+		if($this->options->optimize_output && $optimize && $this->optimizer instanceof Optimizer){
 			$this->optimizer->optimize($dest);
 		}
 
