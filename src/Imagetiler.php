@@ -44,9 +44,7 @@ class Imagetiler implements LoggerAwareInterface{
 		}
 
 		$this->setOptions($options ?? new ImagetilerOptions);
-
 		$this->setLogger($logger ?? new NullLogger);
-
 	}
 
 	/**
@@ -97,8 +95,12 @@ class Imagetiler implements LoggerAwareInterface{
 			throw new ImagetilerException('cannot read image '.$image_path);
 		}
 
-		if(!is_dir($out_path) || !is_writable($out_path)){
-			throw new ImagetilerException('output path is not writable');
+		if(!is_dir($out_path)|| !is_writable($out_path)){
+
+			if(!mkdir($out_path, 0755, true)){
+				throw new ImagetilerException('output path is not writable');
+			}
+
 		}
 
 		// prepare base images for each zoom level
@@ -106,7 +108,7 @@ class Imagetiler implements LoggerAwareInterface{
 
 		// create tiles for each zoom level
 		for($i = $this->options->zoom_min; $i <= $this->options->zoom_max; $i++){
-			$this->createTilesForZoom($image_path, $out_path, $i);
+			$this->createTilesForZoom($out_path, $i);
 		}
 
 		// clean up base images
@@ -140,11 +142,11 @@ class Imagetiler implements LoggerAwareInterface{
 		$il    = null;
 
 		for($zoom = $this->options->zoom_max; $zoom >= $this->options->zoom_min; $zoom--){
-			$file = $out_path.'/'.$zoom.'.'.$this->ext;
+			$base_image = $out_path.'/'.$zoom.'.'.$this->ext;
 
 			//check if already exist
-			if(!$this->options->overwrite_base_image && is_file($file)){
-				$this->logger->info('base image for zoom level '.$zoom.' already exists: '.$file);
+			if(!$this->options->overwrite_base_image && is_file($base_image)){
+				$this->logger->info('base image for zoom level '.$zoom.' already exists: '.$base_image);
 				continue;
 			}
 
@@ -160,7 +162,7 @@ class Imagetiler implements LoggerAwareInterface{
 				: $il->resizeImage($w, $h, $this->options->resize_filter, $this->options->resize_blur);
 
 			//store
-			$this->imageSave($il, $file);
+			$this->imageSave($il, $base_image);
 
 			//clear
 			if($start){
@@ -169,7 +171,7 @@ class Imagetiler implements LoggerAwareInterface{
 			}
 
 			$start = false;
-			$this->logger->info('created image for zoom level '.$zoom.' ['.$w.'x'.$h.'] '.$file);
+			$this->logger->info('created image for zoom level '.$zoom.' ['.$w.'x'.$h.'] '.$base_image);
 		}
 
 		//free resurce, destroy imagick object
@@ -180,14 +182,13 @@ class Imagetiler implements LoggerAwareInterface{
 	}
 
 	/**
-	 * @param string $image_path
 	 * @param string $out_path
 	 * @param int    $zoom
 	 *
 	 * @return void
 	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
-	protected function createTilesForZoom(string $image_path, string $out_path, int $zoom):void{
+	protected function createTilesForZoom(string $out_path, int $zoom):void{
 		$base_image = $out_path.'/'.$zoom.'.'.$this->ext;
 
 		//load image
@@ -195,16 +196,16 @@ class Imagetiler implements LoggerAwareInterface{
 			throw new ImagetilerException('cannot read base image '.$base_image.' for zoom '.$zoom);
 		}
 
-		$image = new Imagick($base_image);
+		$im = new Imagick($base_image);
 
 		//get image size
-		$image_w = $image->getimagewidth();
-		$image_h = $image->getImageHeight();
+		$w = $im->getimagewidth();
+		$h = $im->getImageHeight();
 
 		$ts = $this->options->tile_size;
 
-		$x = (int)ceil($image_w / $ts);
-		$y = (int)ceil($image_h / $ts);
+		$x = (int)ceil($w / $ts);
+		$y = (int)ceil($h / $ts);
 
 		// width
 		for($ix = 0; $ix < $x; $ix++){
@@ -221,17 +222,23 @@ class Imagetiler implements LoggerAwareInterface{
 					continue;
 				}
 
-				$ti = clone $image;
+				$ti = clone $im;
 
 				$cy = $this->options->tms
-					? $image_h - ($iy + 1) * $ts
+					? $h - ($iy + 1) * $ts
 					: $iy * $ts;
 
 				$ti->cropImage($ts, $ts, $cx, $cy);
 
 				// check if the current tile is smaller than the tile size (leftover edges on the input image)
 				if($ti->getImageWidth() < $ts || $ti->getimageheight() < $ts){
-					$this->fillFreeSpace($ti, $ts, $ts);
+
+					$th = $this->options->tms
+						? $im->getImageHeight() - $ts
+						: 0;
+
+					$ti->setImageBackgroundColor($this->options->fill_color);
+					$ti->extentImage($ts, $ts, 0, $th);
 				}
 
 				// save
@@ -242,9 +249,9 @@ class Imagetiler implements LoggerAwareInterface{
 			}
 		}
 
-		//clear resurces
-		$image->clear();
-		$image->destroy();
+		// clear resources
+		$im->clear();
+		$im->destroy();
 
 		$this->logger->info('created tiles for zoom level: '.$zoom);
 	}
@@ -258,7 +265,6 @@ class Imagetiler implements LoggerAwareInterface{
 	 */
 	protected function removeZoomBaseImages(string $out_path):void{
 
-		//remove
 		for($i = $this->options->zoom_min; $i <= $this->options->zoom_max; $i++){
 			$lvl_file = $out_path.'/'.$i.'.'.$this->ext;
 
@@ -269,24 +275,6 @@ class Imagetiler implements LoggerAwareInterface{
 			}
 		}
 
-	}
-
-	/**
-	 * Put image in to rectangle and fill free space
-	 *
-	 * @param Imagick $image
-	 * @param int     $w     width
-	 * @param int     $h     height
-	 *
-	 * @return Imagick object
-	 */
-	protected function fillFreeSpace(Imagick $image, int $w, int $h):Imagick{
-		$image->setImageBackgroundColor($this->options->fill_color);
-		$image->extentImage($w, $h, 0, ($this->options->tms ? $image->getImageHeight() - $h : 0)); //count for move bottom-left
-		//$image->setImageExtent($w, $h);
-		//$image->setImageGravity(Imagick::GRAVITY_CENTER);
-
-		return $image;
 	}
 
 	/**
@@ -304,7 +292,7 @@ class Imagetiler implements LoggerAwareInterface{
 		$dir = dirname($dest);
 
 		if(!is_dir($dir)){
-			if(!mkdir($dir, 0777, true)){
+			if(!mkdir($dir, 0755, true)){
 				throw new ImagetilerException('cannot crate folder '.$dir);
 			}
 		}
