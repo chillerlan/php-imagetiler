@@ -12,7 +12,7 @@
 
 namespace chillerlan\Imagetiler;
 
-use chillerlan\Traits\ContainerInterface;
+use chillerlan\Settings\SettingsContainerInterface;
 use ImageOptimizer\Optimizer;
 use Imagick;
 use Psr\Log\{LoggerAwareInterface, LoggerAwareTrait, LoggerInterface, NullLogger};
@@ -33,13 +33,13 @@ class Imagetiler implements LoggerAwareInterface{
 	/**
 	 * Imagetiler constructor.
 	 *
-	 * @param \chillerlan\Traits\ContainerInterface|null $options
+	 * @param \chillerlan\Settings\SettingsContainerInterface|null $options
 	 * @param \ImageOptimizer\Optimizer                  $optimizer
 	 * @param \Psr\Log\LoggerInterface|null              $logger
 	 *
 	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
-	public function __construct(ContainerInterface $options = null, Optimizer $optimizer = null, LoggerInterface $logger = null){
+	public function __construct(SettingsContainerInterface $options = null, Optimizer $optimizer = null, LoggerInterface $logger = null){
 
 		if(!extension_loaded('imagick')){
 			throw new ImagetilerException('Imagick extension is not available');
@@ -54,23 +54,12 @@ class Imagetiler implements LoggerAwareInterface{
 	}
 
 	/**
-	 * @param \chillerlan\Traits\ContainerInterface $options
+	 * @param \chillerlan\Settings\SettingsContainerInterface $options
 	 *
 	 * @return \chillerlan\Imagetiler\Imagetiler
 	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
-	public function setOptions(ContainerInterface $options):Imagetiler{
-		$options->zoom_min = max(0, $options->zoom_min);
-		$options->zoom_max = max(1, $options->zoom_max);
-
-		if($options->zoom_normalize === null || $options->zoom_max < $options->zoom_normalize){
-			$options->zoom_normalize = $options->zoom_max;
-		}
-
-		if($options->tile_ext === null){
-			$options->tile_ext = $this->getExtension($options->tile_format);
-		}
-
+	public function setOptions(SettingsContainerInterface $options):Imagetiler{
 		$this->options = $options;
 
 		if(ini_set('memory_limit', $this->options->memory_limit) === false){
@@ -85,7 +74,6 @@ class Imagetiler implements LoggerAwareInterface{
 			apache_setenv('MAGICK_TEMPORARY_PATH', $this->options->imagick_tmp);
 			putenv('MAGICK_TEMPORARY_PATH='.$this->options->imagick_tmp);
 		}
-
 
 		return $this;
 	}
@@ -348,27 +336,6 @@ class Imagetiler implements LoggerAwareInterface{
 		}
 
 		return [$width, $height];
-	}
-
-	/**
-	 * return file extension depend of given format
-	 *
-	 * @param string $format
-	 *
-	 * @return string
-	 * @throws \chillerlan\Imagetiler\ImagetilerException
-	 */
-	protected function getExtension(string $format):string{
-
-		if(in_array($format, ['jpeg', 'jp2', 'jpc', 'jxr',], true)){
-			return 'jpg';
-		}
-
-		if(in_array($format, ['png', 'png00', 'png8', 'png24', 'png32', 'png64',], true)){
-			return 'png';
-		}
-
-		throw new ImagetilerException('invalid file format');
 	}
 
 }

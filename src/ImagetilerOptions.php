@@ -12,7 +12,7 @@
 
 namespace chillerlan\Imagetiler;
 
-use chillerlan\Traits\ContainerAbstract;
+use chillerlan\Settings\SettingsContainerAbstract;
 
 /**
  * @property int $tile_size
@@ -35,6 +35,6 @@ use chillerlan\Traits\ContainerAbstract;
  * @property bool $clean_up
  * @property bool $optimize_output
  */
-class ImagetilerOptions extends ContainerAbstract{
+class ImagetilerOptions extends SettingsContainerAbstract{
 	use ImagetilerOptionsTrait;
 }

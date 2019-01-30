@@ -152,4 +152,42 @@ trait ImagetilerOptionsTrait{
 	 */
 	protected $optimize_output = false;
 
+	/**
+	 * "constructor"
+	 */
+	public function ImagetilerOptionsTrait(){
+		$this->zoom_min = max(0, $this->zoom_min);
+		$this->zoom_max = max(1, $this->zoom_max);
+
+		if($this->zoom_normalize === null || $this->zoom_max < $this->zoom_normalize){
+			$this->zoom_normalize = $this->zoom_max;
+		}
+
+		if($this->tile_ext === null){
+			$this->tile_ext = $this->getExtension($this->tile_format);
+		}
+
+	}
+
+	/**
+	 * return file extension depend of given format
+	 *
+	 * @param string $format
+	 *
+	 * @return string
+	 * @throws \chillerlan\Imagetiler\ImagetilerException
+	 */
+	protected function getExtension(string $format):string{
+
+		if(in_array($format, ['jpeg', 'jp2', 'jpc', 'jxr',], true)){
+			return 'jpg';
+		}
+
+		if(in_array($format, ['png', 'png00', 'png8', 'png24', 'png32', 'png64',], true)){
+			return 'png';
+		}
+
+		throw new ImagetilerException('invalid file format');
+	}
+
 }
