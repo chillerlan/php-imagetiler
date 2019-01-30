@@ -9,15 +9,15 @@
 
 namespace chillerlan\ImagetilerExamples;
 
-use chillerlan\Imagetiler\{Imagetiler, ImagetilerException, ImagetilerOptionsTrait};
+use chillerlan\Imagetiler\{Imagetiler, ImagetilerException, ImagetilerOptions, ImagetilerOptionsTrait};
 use chillerlan\Logger\{Log, LogOptionsTrait, Output\ConsoleLog};
-use chillerlan\Traits\ContainerAbstract;
+use chillerlan\Settings\SettingsContainerAbstract;
 use ImageOptimizer\OptimizerFactory;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
 $input = __DIR__.'/[YOUR HUGE IMAGE].png';
-$utils = __DIR__.'/../../../utils/%s.exe';
+$utils = __DIR__.'/path/to/utils/%s[.exe]';
 
 $options = [
 	// ImagetilerOptions
@@ -44,7 +44,7 @@ $optimizer_settings = [
 	'pngquant_bin' => sprintf($utils, 'pngquant'),
 ];
 
-$options = new class($options) extends ContainerAbstract{
+$options = new class($options) extends SettingsContainerAbstract{
 	use ImagetilerOptionsTrait, LogOptionsTrait;
 };
 
