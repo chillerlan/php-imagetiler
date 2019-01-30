@@ -87,7 +87,7 @@ That's it!
 ### `Imagetiler` public methods
 method | return | description
 ------ | ------ | -----------
-`__construct(ContainerInterface $options = null, LoggerInterface $logger = null)` | - | see [`ContainerInterface`](https://github.com/chillerlan/php-traits/blob/master/src/ContainerInterface.php) and [`LoggerInterface`](https://github.com/php-fig/log). Invokes an empty `ImagetilerOptions` object and a `Psr\NullLogger` if the respective parameters aren't set.
+`__construct(ContainerInterface $options = null, LoggerInterface $logger = null)` | - | see [`SettingsContainerInterface`](https://github.com/chillerlan/php-settings-container/blob/master/src/SettingsContainerInterface.php) and [`LoggerInterface`](https://github.com/php-fig/log). Invokes an empty `ImagetilerOptions` object and a `Psr\NullLogger` if the respective parameters aren't set.
 `setOptions(ContainerInterface $options)` | `Imagetiler` | set options on-the-fly, called internally by the constructor
 `setOptimizer(Optimizer $optimizer)` | `Imagetiler` | set an optimizer instance on-the-fly, called internally by the constructor
 `process(string $image_path, string $out_path)` | `Imagetiler` | processes the given image from `$image_path` and dumps the output to `$out_path`
@@ -110,7 +110,7 @@ property | type | default | allowed | description
 `$tile_ext` | string | null | * | tile image extension - autodetected from format if none given.
 `$quality_jpeg` | int | 80 | 0-100 | quality of the saved image in jpeg format
 `$imagick_tmp` | string | null | * | ImageMagick tmp folder
-`$overwrite_base_image` | bool | false | * | 
-`$overwrite_tile_image` | bool | false | * | 
+`$overwrite_base_image` | bool | false | * |
+`$overwrite_tile_image` | bool | false | * |
 `$clean_up` | bool | true | * | whether or not to delete temp images
 `$optimize_output` | bool | false | * | enable image optimization (requires `Optimizer` instance)

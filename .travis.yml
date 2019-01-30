@@ -5,8 +5,13 @@ addons:
 
 language: php
 
-php:
-  - 7.2
+matrix:
+  include:
+    - php: 7.2
+    - php: 7.3
+    - php: nightly
+  allow_failures:
+    - php: nightly
 
 before_install: printf "\n" | pecl install imagick
 install: travis_retry composer install --no-interaction --prefer-source
