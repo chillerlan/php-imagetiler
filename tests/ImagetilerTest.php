@@ -26,7 +26,7 @@ class ImagetilerTest extends TestCase{
 	 */
 	protected $reflection;
 
-	protected function setUp(){
+	protected function setUp():void{
 		$this->reflection = new ReflectionClass(Imagetiler::class);
 	}
 

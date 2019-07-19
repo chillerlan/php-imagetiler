@@ -10,9 +10,9 @@
 namespace chillerlan\ImagetilerExamples;
 
 use chillerlan\Imagetiler\{Imagetiler, ImagetilerException, ImagetilerOptions, ImagetilerOptionsTrait};
-use chillerlan\Logger\{Log, LogOptionsTrait, Output\ConsoleLog};
 use chillerlan\Settings\SettingsContainerAbstract;
 use ImageOptimizer\OptimizerFactory;
+use Psr\Log\AbstractLogger;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
@@ -32,8 +32,6 @@ $options = [
 	'clean_up'             => false,
 	'optimize_output'      => true,
 	'memory_limit'         => '2G',
-	// LogOptions
-	'minLogLevel' => 'debug',
 ];
 
 $optimizer_settings = [
@@ -44,11 +42,14 @@ $optimizer_settings = [
 	'pngquant_bin' => sprintf($utils, 'pngquant'),
 ];
 
-$options = new class($options) extends SettingsContainerAbstract{
-	use ImagetilerOptionsTrait, LogOptionsTrait;
+$options = new ImagetilerOptions($options);
+
+$logger = new class() extends AbstractLogger{
+	public function log($level, $message, array $context = []){
+		echo sprintf('[%s][%s] %s', date('Y-m-d H:i:s'), substr($level, 0, 4), trim($message))."\n";
+	}
 };
 
-$logger    = (new Log)->addInstance(new ConsoleLog($options), 'console');
 $optimizer = (new OptimizerFactory($optimizer_settings, $logger))->get();
 $tiler     = new Imagetiler($options, $optimizer, $logger);
 
@@ -56,6 +57,6 @@ try{
 	$tiler->process($input, __DIR__.'/tiles');
 }
 catch(ImagetilerException $e){
-	echo $e->getMessage();
-	echo $e->getTraceAsString();
+	$logger->error($e->getMessage());
+	$logger->error($e->getTraceAsString());
 }

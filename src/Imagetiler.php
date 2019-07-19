@@ -275,7 +275,7 @@ class Imagetiler implements LoggerAwareInterface{
 
 		if(!is_dir($dir)){
 			if(!mkdir($dir, 0755, true)){
-				throw new ImagetilerException('cannot crate folder '.$dir);
+				throw new ImagetilerException('cannot create folder '.$dir);
 			}
 		}
 
