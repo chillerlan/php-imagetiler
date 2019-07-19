@@ -23,8 +23,7 @@
 		"psr/log": "^1.1"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "^8.2",
-		"chillerlan/php-log": "^3.0"
+		"phpunit/phpunit": "^8.2"
 	},
 	"autoload": {
 		"psr-4": {
