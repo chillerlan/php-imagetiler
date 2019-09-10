@@ -33,6 +33,8 @@ $options = [
 	'tile_format'          => 'jpeg',
 #	'overwrite_base_image' => true,
 	'no_temp_baseimages'   => true,
+	'resize_blur_upsample' => 0.7,
+	'resize_blur_downsample' => 0.7,
 ];
 
 $optimizer_settings = [
@@ -54,7 +56,7 @@ $logger = new class() extends AbstractLogger{
 	}
 };
 
-$optimizer = (new OptimizerFactory($optimizer_settings, $logger))->get();
+$optimizer = (new OptimizerFactory($optimizer_settings, $logger))->get($options->tile_format);
 $tiler     = new Imagetiler($options, $optimizer, $logger);
 
 try{
