@@ -111,9 +111,12 @@ property | type | default | allowed | description
 `$fill_color` | string | '#000000' | * | the fill color for leftover space, can be transparent for png
 `$memory_limit` | string | '-1' | * | see [php.ini settings](https://secure.php.net/manual/ini.core.php#ini.memory-limit)
 `$store_structure` | string | '%1$d/%2$d/%3$d' | * | storage structure - can be anything. %1$d = zoom, %2$d = x, %3$d = y. see [sprintf()](https://secure.php.net/manual/function.sprintf.php)
-`$fast_resize` | bool | false | * | determines whether to use fast `Imagick::scaleImage()` (true) or slow `Imagick::resizeImage()` (false)
-`$resize_filter` | int | `Imagick::FILTER_ROBIDOUXSHARP` | `Imagick::FILTER_*` | see `Imagick::resizeImage()` and [Imagick filter constants](https://secure.php.net/manual/imagick.constants.php)
-`$resize_blur` | float | 1.0 | positive float | see `Imagick::resizeImage()`
+`$fast_resize_upsample` | bool | false | * | determines whether to use fast `Imagick::scaleImage()` (true) or slow `Imagick::resizeImage()` (false)
+`$resize_filter_upsample` | int | `Imagick::FILTER_ROBIDOUXSHARP` | `Imagick::FILTER_*` | see `Imagick::resizeImage()` and [Imagick filter constants](https://secure.php.net/manual/imagick.constants.php)
+`$resize_blur_upsample` | float | 1.0 | positive float | see `Imagick::resizeImage()`
+`$fast_resize_downsample` | bool | false | * | see `$fast_resize_upsample`
+`$resize_filter_downsample` | int | `Imagick::FILTER_LANCZOSRADIUS` | `Imagick::FILTER_*` | see `$resize_filter_upsample`
+`$resize_blur_downsample` | float | 1.0 | positive float | see `$resize_blur_upsample`
 `$tile_format` | string | 'png' | png, jpg | see [Imagick formats](http://www.imagemagick.org/script/formats.php)
 `$tile_ext` | string | null | * | tile image extension - autodetected from format if none given.
 `$quality_jpeg` | int | 80 | 0-100 | quality of the saved image in jpeg format
@@ -122,3 +125,4 @@ property | type | default | allowed | description
 `$overwrite_tile_image` | bool | false | * |
 `$clean_up` | bool | true | * | whether or not to delete temp images
 `$optimize_output` | bool | false | * | enable image optimization (requires `Optimizer` instance)
+`$no_temp_baseimages` | bool | false | * | whether or not to create and save temporary base images (may save resources)
