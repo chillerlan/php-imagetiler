@@ -50,12 +50,6 @@ This script will keep the proportions of the input image and generate only neces
 }
 ```
 
-### Manual installation
-Download the desired version of the package from [master](https://github.com/chillerlan/php-imagetiler/archive/master.zip) or
-[release](https://github.com/chillerlan/php-imagetiler/releases) and extract the contents to your project folder.  After that:
-- run `composer install` to install the required dependencies and generate `/vendor/autoload.php`.
-- if you use a custom autoloader, point the namespace `chillerlan\Imagetiler` to the folder `src` of the package
-
 Profit!
 
 ## Usage
@@ -81,6 +75,20 @@ $tiler->process('/path/to/image.png', '/path/to/output/');
 ```
 
 That's it!
+
+### Memory trouble
+If you're running into issues with ImageMagick complaining about not enough space on the cache path, you might want to check the [`policy.xml`](https://github.com/ImageMagick/ImageMagick/blob/master/config/policy.xml) in the ImageMagick installation path (on Windows).
+For your consideration: an image of 49152x49152 will generate a cache file of ~28.5GB, 
+### Image optimizers
+
+- PNG
+  - [advpng](https://github.com/amadvance/advancecomp)
+  - [optipng](http://optipng.sourceforge.net/)
+  - [pngcrush](https://pmt.sourceforge.io/pngcrush/)
+  - [pngquant](https://pngquant.org/)
+- JPG
+  - [jpegoptim](https://github.com/XhmikosR/jpegoptim-windows)
+  - [jpegtran](https://jpegclub.org/jpegtran/)
 
 ## API
 

@@ -23,17 +23,20 @@ use chillerlan\Settings\SettingsContainerAbstract;
  * @property string $fill_color
  * @property string $memory_limit
  * @property string $store_structure
- * @property bool $fast_resize
- * @property int $resize_filter
- * @property float $resize_blur
+ * @property bool $fast_resize_upsample
+ * @property int $resize_filter_upsample
+ * @property float $resize_blur_upsample
+ * @property bool $fast_resize_downsample
+ * @property int $resize_filter_downsample
+ * @property float $resize_blur_downsample
  * @property string $tile_format
  * @property string $tile_ext
  * @property int $quality_jpeg
- * @property string $imagick_tmp
  * @property bool $overwrite_base_image
  * @property bool $overwrite_tile_image
  * @property bool $clean_up
  * @property bool $optimize_output
+ * @property bool $no_temp_baseimages
  */
 class ImagetilerOptions extends SettingsContainerAbstract{
 	use ImagetilerOptionsTrait;

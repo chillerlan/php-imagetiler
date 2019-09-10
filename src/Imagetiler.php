@@ -17,6 +17,9 @@ use ImageOptimizer\Optimizer;
 use Imagick;
 use Psr\Log\{LoggerAwareInterface, LoggerAwareTrait, LoggerInterface, NullLogger};
 
+use function ceil, dirname, extension_loaded, function_exists, ini_get, ini_set, is_dir,
+	is_file, is_readable, is_writable, mkdir, putenv, round, sprintf, unlink;
+
 class Imagetiler implements LoggerAwareInterface{
 	use LoggerAwareTrait;
 
@@ -34,8 +37,8 @@ class Imagetiler implements LoggerAwareInterface{
 	 * Imagetiler constructor.
 	 *
 	 * @param \chillerlan\Settings\SettingsContainerInterface|null $options
-	 * @param \ImageOptimizer\Optimizer                  $optimizer
-	 * @param \Psr\Log\LoggerInterface|null              $logger
+	 * @param \ImageOptimizer\Optimizer                            $optimizer
+	 * @param \Psr\Log\LoggerInterface|null                        $logger
 	 *
 	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
@@ -70,11 +73,6 @@ class Imagetiler implements LoggerAwareInterface{
 			throw new ImagetilerException('ini settings differ from options');
 		}
 
-		if($this->options->imagick_tmp !== null && is_dir($this->options->imagick_tmp)){
-			apache_setenv('MAGICK_TEMPORARY_PATH', $this->options->imagick_tmp);
-			putenv('MAGICK_TEMPORARY_PATH='.$this->options->imagick_tmp);
-		}
-
 		return $this;
 	}
 
@@ -102,7 +100,7 @@ class Imagetiler implements LoggerAwareInterface{
 			throw new ImagetilerException('cannot read image '.$image_path);
 		}
 
-		if(!is_dir($out_path)|| !is_writable($out_path)){
+		if(!is_dir($out_path) || !is_writable($out_path)){
 
 			if(!mkdir($out_path, 0755, true)){
 				throw new ImagetilerException('output path is not writable');
@@ -110,13 +108,17 @@ class Imagetiler implements LoggerAwareInterface{
 
 		}
 
+		$this->logger->info('processing image: '.$image_path.', out path: '.$out_path);
+
 		// prepare the zoom base images
-		$this->prepareZoomBaseImages($image_path, $out_path);
+		$base_images = $this->prepareZoomBaseImages($image_path, $out_path);
+
+		if($this->options->no_temp_baseimages === true){
+			return $this;
+		}
 
 		// create the tiles
-		for($zoom = $this->options->zoom_min; $zoom <= $this->options->zoom_max; $zoom++){
-
-			$base_image = $out_path.'/'.$zoom.'.'.$this->options->tile_ext;
+		foreach($base_images as $zoom => $base_image){
 
 			//load image
 			if(!is_file($base_image) || !is_readable($base_image)){
@@ -149,9 +151,31 @@ class Imagetiler implements LoggerAwareInterface{
 	 *
 	 * @param string $image_path
 	 * @param string $out_path
+	 *
+	 * @return array
 	 */
-	protected function prepareZoomBaseImages(string $image_path, string $out_path):void{
+	protected function prepareZoomBaseImages(string $image_path, string $out_path):array{
+		$base_images = [];
+
+		// create base image file names
+		for($zoom = $this->options->zoom_max; $zoom >= $this->options->zoom_min; $zoom--){
+			$base_image = $out_path.'/'.$zoom.'.'.$this->options->tile_ext;
+			// check if the base image already exists
+			if(!$this->options->overwrite_base_image && is_file($base_image)){
+				$this->logger->info('base image for zoom level '.$zoom.' already exists: '.$base_image);
+
+				continue;
+			}
+
+			$base_images[$zoom] = $base_image;
+		}
+
+		if(empty($base_images)){
+			return [];
+		}
+
 		$im = new Imagick($image_path);
+		$im->setColorspace(Imagick::COLORSPACE_SRGB);
 		$im->setImageFormat($this->options->tile_format);
 
 		$width  = $im->getimagewidth();
@@ -159,53 +183,62 @@ class Imagetiler implements LoggerAwareInterface{
 
 		$this->logger->info('input image loaded: ['.$width.'x'.$height.'] '.$image_path);
 
-		$start = true;
-		$il    = null;
-
-		for($zoom = $this->options->zoom_max; $zoom >= $this->options->zoom_min; $zoom--){
-			$base_image = $out_path.'/'.$zoom.'.'.$this->options->tile_ext;
-
-			// check if the base image already exists
-			if(!$this->options->overwrite_base_image && is_file($base_image)){
-				$this->logger->info('base image for zoom level '.$zoom.' already exists: '.$base_image);
-				continue;
-			}
-
+		foreach($base_images as $zoom => $base_image){
 			[$w, $h] = $this->getSize($width, $height, $zoom);
 
-			// fit main image to current zoom level
-			$il = $start ? clone $im : $il;
+			// clone the original image and fit it to the current zoom level
+			$il = clone $im;
 
-			$this->options->fast_resize === true
-				// scaleImage - works fast, but without any quality configuration
-				? $il->scaleImage($w, $h, true)
-				// resizeImage - works slower but offers better quality
-				: $il->resizeImage($w, $h, $this->options->resize_filter, $this->options->resize_blur);
-
-			// save without optimizing
-			$this->saveImage($il, $base_image, false);
-
-			if($start){
-				$this->clearImage($im);
+			if($zoom > $this->options->zoom_normalize){
+				$this->scale($il, $w, $h, $this->options->fast_resize_upsample, $this->options->resize_filter_upsample, $this->options->resize_blur_upsample);
+			}
+			elseif($zoom < $this->options->zoom_normalize){
+				$this->scale($il, $w, $h, $this->options->fast_resize_downsample, $this->options->resize_filter_downsample, $this->options->resize_blur_downsample);
 			}
 
-			$start = false;
+			$this->options->no_temp_baseimages === false
+				? $this->saveImage($il, $base_image, false)
+				: $this->createTilesForZoom($il, $zoom, $out_path);
+
+			$this->clearImage($il);
+
 			$this->logger->info('created image for zoom level '.$zoom.' ['.$w.'x'.$h.'] '.$base_image);
 		}
 
-		$this->clearImage($il);
+		$this->clearImage($im);
+
+		return $base_images;
+	}
+
+	/**
+	 * @param \Imagick $im
+	 * @param int      $w
+	 * @param int      $h
+	 * @param bool     $fast
+	 * @param int      $filter
+	 * @param float    $blur
+	 *
+	 * @return void
+	 */
+	protected function scale(Imagick $im, int $w, int $h, bool $fast, int $filter, float $blur):void{
+		$fast === true
+			// scaleImage - works fast, but without any quality configuration
+			? $im->scaleImage($w, $h, true)
+			// resizeImage - works slower but offers better quality
+			: $im->resizeImage($w, $h, $filter, $blur);
 	}
 
 	/**
 	 * create tiles for each zoom level
 	 *
-	 * @param \Imagick                       $im
-	 * @param int                            $zoom
-	 * @param string                         $out_path
+	 * @param \Imagick $im
+	 * @param int      $zoom
+	 * @param string   $out_path
 	 *
 	 * @return void
 	 */
 	protected function createTilesForZoom(Imagick $im, int $zoom, string $out_path):void{
+		$im->setColorspace(Imagick::COLORSPACE_SRGB);
 		$ts = $this->options->tile_size;
 		$h  = $im->getImageHeight();
 		$x  = (int)ceil($im->getimagewidth() / $ts);
@@ -225,7 +258,7 @@ class Imagetiler implements LoggerAwareInterface{
 
 				// check if tile already exists
 				if(!$this->options->overwrite_tile_image && is_file($tile)){
-					$this->logger->info('tile '.$zoom.'/'.$x.'/'.$y.' already exists: '.$tile);
+					$this->logger->info('tile '.$zoom.'/'.$ix.'/'.$iy.' already exists: '.$tile);
 
 					continue;
 				}
@@ -253,11 +286,11 @@ class Imagetiler implements LoggerAwareInterface{
 			}
 
 			$this->clearImage($ci);
-			$this->logger->info('created column '.$ix.', x = '.$cx);
+			$this->logger->info('created column '.$ix.', zoom = '.$zoom.', x = '.$cx);
 		}
 
 		$this->clearImage($im);
-		$this->logger->info('created tiles for zoom level: '.$zoom.', '.$y.' tile(s) per column');
+		$this->logger->info('created tiles for zoom level: '.$zoom.', '.$x.' columns, '.$y.' tile(s) per column');
 	}
 
 	/**
@@ -280,7 +313,7 @@ class Imagetiler implements LoggerAwareInterface{
 		}
 
 		if($this->options->tile_format === 'jpeg'){
-			$image->setCompression(Imagick::COMPRESSION_JPEG);
+			$image->setCompression(Imagick::COMPRESSION_JPEG2000);
 			$image->setCompressionQuality($this->options->quality_jpeg);
 		}
 
@@ -322,15 +355,16 @@ class Imagetiler implements LoggerAwareInterface{
 	 * @return int[]
 	 */
 	protected function getSize(int $width, int $height, int $zoom):array{
+		$zoom_normalize = $this->options->zoom_normalize ?? $this->options->zoom_max;
 
-		if($this->options->zoom_max > $this->options->zoom_normalize && $zoom > $this->options->zoom_normalize){
-			$zd = 2 ** ($zoom - $this->options->zoom_normalize);
+		if($this->options->zoom_max > $zoom_normalize && $zoom > $zoom_normalize){
+			$zd = 2 ** ($zoom - $zoom_normalize);
 
 			return [$zd * $width, $zd * $height];
 		}
 
-		if($zoom < $this->options->zoom_normalize){
-			$zd = 2 ** ($this->options->zoom_normalize - $zoom);
+		if($zoom < $zoom_normalize){
+			$zd = 2 ** ($zoom_normalize - $zoom);
 
 			return [(int)round($width / $zd), (int)round($height / $zd)];
 		}

@@ -9,8 +9,7 @@
 
 namespace chillerlan\ImagetilerExamples;
 
-use chillerlan\Imagetiler\{Imagetiler, ImagetilerException, ImagetilerOptions, ImagetilerOptionsTrait};
-use chillerlan\Settings\SettingsContainerAbstract;
+use chillerlan\Imagetiler\{Imagetiler, ImagetilerException, ImagetilerOptions};
 use ImageOptimizer\OptimizerFactory;
 use Psr\Log\AbstractLogger;
 
@@ -23,23 +22,28 @@ $options = [
 	// ImagetilerOptions
 	'zoom_min'             => 0,
 	'zoom_max'             => 8,
-	'zoom_normalize'       => 6,
+	'zoom_normalize'       => 7,
 	'tms'                  => false,
 	'fill_color'           => '#000000',
 	'fast_resize'          => false,
-	'overwrite_base_image' => false,
 	'overwrite_tile_image' => true,
 	'clean_up'             => false,
 	'optimize_output'      => true,
-	'memory_limit'         => '2G',
+	'memory_limit'         => '8G',
+	'tile_format'          => 'jpeg',
+#	'overwrite_base_image' => true,
+	'no_temp_baseimages'   => true,
 ];
 
 $optimizer_settings = [
 	'execute_only_first_png_optimizer' => false,
-	'advpng_bin'   => sprintf($utils, 'advpng'),
-	'optipng_bin'  => sprintf($utils, 'optipng'),
-	'pngcrush_bin' => sprintf($utils, 'pngcrush'),
-	'pngquant_bin' => sprintf($utils, 'pngquant'),
+	'advpng_bin'    => sprintf($utils, 'advpng'),
+	'optipng_bin'   => sprintf($utils, 'optipng'),
+	'pngcrush_bin'  => sprintf($utils, 'pngcrush'),
+	'pngquant_bin'  => sprintf($utils, 'pngquant'),
+	'execute_only_first_jpeg_optimizer' => false,
+	'jpegoptim_bin' => sprintf($utils, 'jpegoptim'),
+	'jpegtran_bin'  => sprintf($utils, 'jpegtran'),
 ];
 
 $options = new ImagetilerOptions($options);

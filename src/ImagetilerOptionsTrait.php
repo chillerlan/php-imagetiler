@@ -14,6 +14,8 @@ namespace chillerlan\Imagetiler;
 
 use Imagick;
 
+use function in_array, max, strtolower;
+
 trait ImagetilerOptionsTrait{
 
 	/**
@@ -41,9 +43,12 @@ trait ImagetilerOptionsTrait{
 	/**
 	 * normalize zoom level
 	 *
-	 * this zoom level represents the size of the original image.
-	 * zoom levels higher than this will be upscaled, which may take
+	 * this zoom level represents the zoom/size of the original image.
+	 * zoom levels higher than this will be upscaled up to $zoom_max,
+	 * lower will be downsampled to $zoom_min, which may take
 	 * some time and resources depending on the size of the input image.
+	 *
+	 * Defaults to $zoom_max
 	 *
 	 * @var int
 	 */
@@ -51,6 +56,7 @@ trait ImagetilerOptionsTrait{
 
 	/**
 	 * if set to true - the origin will be set to bottom left, +y upwards
+	 *
 	 * @see http://wiki.osgeo.org/wiki/Tile_Map_Service_Specification#TileMap_Diagram
 	 *
 	 * otherwise the origin is on the top left, +y downwards (default)
@@ -89,21 +95,41 @@ trait ImagetilerOptionsTrait{
 	 *
 	 * @var bool
 	 */
-	protected $fast_resize = false;
+	protected $fast_resize_upsample = false;
+
+	/**
+	 * @see https://secure.php.net/manual/imagick.constants.php
+	 * @see http://www.imagemagick.org/Usage/filter/nicolas/
+	 * @var int
+	 */
+	protected $resize_filter_upsample = Imagick::FILTER_ROBIDOUXSHARP;
+
+	/**
+	 * @var float
+	 */
+	protected $resize_blur_upsample = 1.0;
+
+	/**
+	 * determines whether to use fast scaleImage (true) or slow resizeImage (false)
+	 *
+	 * @var bool
+	 */
+	protected $fast_resize_downsample = false;
 
 	/**
 	 * @see https://secure.php.net/manual/imagick.constants.php
 	 * @var int
 	 */
-	protected $resize_filter = Imagick::FILTER_ROBIDOUXSHARP; //FILTER_LANCZOS2SHARP
+	protected $resize_filter_downsample = Imagick::FILTER_LANCZOSRADIUS;
 
 	/**
 	 * @var float
 	 */
-	protected $resize_blur = 1.0;
+	protected $resize_blur_downsample = 1.0;
 
 	/**
 	 * image format used for storing the tiles: jpeg or png
+	 *
 	 * @see http://www.imagemagick.org/script/formats.php
 	 *
 	 * @var string
@@ -123,14 +149,6 @@ trait ImagetilerOptionsTrait{
 	 * @var int
 	 */
 	protected $quality_jpeg = 80;
-
-	/**
-	 * ImageMagick tmp folder,
-	 * Can be changed in case if system /tmp have not enough free space
-	 *
-	 * @var string
-	 */
-	protected $imagick_tmp = null;
 
 	/**
 	 * @var bool
@@ -153,24 +171,39 @@ trait ImagetilerOptionsTrait{
 	protected $optimize_output = false;
 
 	/**
-	 * "constructor"
+	 * don't create temporary base images
+	 *
+	 * @var bool
 	 */
-	public function ImagetilerOptionsTrait(){
-		$this->zoom_min = max(0, $this->zoom_min);
-		$this->zoom_max = max(1, $this->zoom_max);
+	protected $no_temp_baseimages = false;
 
-		if($this->zoom_normalize === null || $this->zoom_max < $this->zoom_normalize){
-			$this->zoom_normalize = $this->zoom_max;
-		}
-
-		if($this->tile_ext === null){
-			$this->tile_ext = $this->getExtension($this->tile_format);
-		}
-
+	/**
+	 * @param int $zoom_min
+	 *
+	 * @return void
+	 */
+	protected function set_zoom_min(int $zoom_min):void{
+		$this->zoom_min = max(0, $zoom_min);
 	}
 
 	/**
-	 * return file extension depend of given format
+	 * @param int $zoom_max
+	 *
+	 * @return void
+	 */
+	protected function set_zoom_max(int $zoom_max):void{
+		$this->zoom_max = max(0, $zoom_max);
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function get_tile_ext():string{
+		return $this->tile_ext ?? $this->getExtension($this->tile_format);
+	}
+
+	/**
+	 * return file extension depending on given format
 	 *
 	 * @param string $format
 	 *
@@ -178,12 +211,13 @@ trait ImagetilerOptionsTrait{
 	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
 	protected function getExtension(string $format):string{
+		$format = strtolower($format);
 
-		if(in_array($format, ['jpeg', 'jp2', 'jpc', 'jxr',], true)){
+		if(in_array($format, ['jpeg', 'jp2', 'jpc', 'jxr'], true)){
 			return 'jpg';
 		}
 
-		if(in_array($format, ['png', 'png00', 'png8', 'png24', 'png32', 'png64',], true)){
+		if(in_array($format, ['png', 'png00', 'png8', 'png24', 'png32', 'png64'], true)){
 			return 'png';
 		}
 
