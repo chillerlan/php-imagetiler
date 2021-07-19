@@ -46,7 +46,7 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - windows-latest
+#          - windows-latest # imagick is still not available for php8-win and honestly i do not care
         php-version:
           - "7.4"
           - "8.0"
