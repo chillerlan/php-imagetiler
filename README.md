@@ -44,7 +44,7 @@ This script will keep the proportions of the input image and generate only neces
 ```json
 {
 	"require": {
-		"php": ">=7.2.0",
+		"php": ">=7.4.0",
 		"ext-imagick": "*",
 		"chillerlan/php-imagetiler": "dev-main"
 	}
