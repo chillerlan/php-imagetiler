@@ -10,8 +10,7 @@
 
 namespace chillerlan\ImagetilerTest;
 
-use chillerlan\Imagetiler\Imagetiler;
-use chillerlan\Imagetiler\ImagetilerOptions;
+use chillerlan\Imagetiler\{Imagetiler, ImagetilerOptions};
 use PHPUnit\Framework\TestCase;
 use ReflectionClass, ReflectionMethod;
 
@@ -23,21 +22,21 @@ class ImagetilerTest extends TestCase{
 		$this->reflection = new ReflectionClass(Imagetiler::class);
 	}
 
-	public function testGetSize(){
-
+	public function testGetSize():void{
+		$min = 0;
 		$max = 22;
 
 		$options = new ImagetilerOptions([
-			'zoom_min'             => 0,
+			'zoom_min'             => $min,
 			'zoom_max'             => $max,
 			'zoom_normalize'       => 4,
 		]);
 
 		$tiler = new Imagetiler($options);
 
-		for($z = 0; $z <= $max; $z++){
+		for($z = $min; $z <= $max; $z++){
 			$v = $this->getMethod('getSize')->invokeArgs($tiler, [4096, 2048, $z]);
-
+			/** @phan-suppress-next-line PhanPowerOfZero */
 			$expected = 2 ** $z * 256;
 
 			$this->assertSame($expected, $v[0]);
@@ -51,7 +50,7 @@ class ImagetilerTest extends TestCase{
 	 *
 	 * @return \ReflectionMethod
 	 */
-	protected function getMethod(string $method):ReflectionMethod {
+	protected function getMethod(string $method):ReflectionMethod{
 		$method = $this->reflection->getMethod($method);
 		$method->setAccessible(true);
 
