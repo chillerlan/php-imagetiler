@@ -15,8 +15,8 @@ use ImageOptimizer\Optimizer;
 use Imagick;
 use Psr\Log\{LoggerAwareInterface, LoggerAwareTrait, LoggerInterface, NullLogger};
 
-use function ceil, dirname, extension_loaded, function_exists, ini_get, ini_set, is_dir,
-	is_file, is_readable, is_writable, mkdir, putenv, round, sprintf, unlink;
+use function ceil, dirname, extension_loaded, file_exists, ini_get, ini_set, is_dir,
+	is_file, is_readable, is_writable, mkdir, round, sprintf, unlink;
 
 class Imagetiler implements LoggerAwareInterface{
 	use LoggerAwareTrait;
@@ -74,11 +74,11 @@ class Imagetiler implements LoggerAwareInterface{
 	 */
 	public function process(string $image_path, string $out_path):Imagetiler{
 
-		if(!is_file($image_path) || !is_readable($image_path)){
+		if(!file_exists($image_path) || !is_file($image_path) || !is_readable($image_path)){
 			throw new ImagetilerException('cannot read image '.$image_path);
 		}
 
-		if(!is_dir($out_path) || !is_writable($out_path)){
+		if(!file_exists($out_path) || !is_dir($out_path) || !is_writable($out_path)){
 
 			if(!mkdir($out_path, 0755, true)){
 				throw new ImagetilerException('output path is not writable');
@@ -261,7 +261,7 @@ class Imagetiler implements LoggerAwareInterface{
 	protected function saveImage(Imagick $image, string $dest, bool $optimize):void{
 		$dir = dirname($dest);
 
-		if(!is_dir($dir)){
+		if(!file_exists($dir) || !is_dir($dir)){
 			if(!mkdir($dir, 0755, true)){
 				throw new ImagetilerException('cannot create folder '.$dir);
 			}
