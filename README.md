@@ -6,7 +6,6 @@ This script will keep the proportions of the input image and generate only neces
 [![PHP Version Support][php-badge]][php]
 [![Packagist version][packagist-badge]][packagist]
 [![License][license-badge]][license]
-[![Travis CI][travis-badge]][travis]
 [![CodeCov][coverage-badge]][coverage]
 [![Scrunitizer CI][scrutinizer-badge]][scrutinizer]
 [![Packagist downloads][downloads-badge]][downloads]<br/>
@@ -18,8 +17,6 @@ This script will keep the proportions of the input image and generate only neces
 [packagist]: https://packagist.org/packages/chillerlan/php-imagetiler
 [license-badge]: https://img.shields.io/github/license/chillerlan/php-imagetiler.svg
 [license]: https://github.com/chillerlan/php-imagetiler/blob/main/LICENSE
-[travis-badge]: https://img.shields.io/travis/com/chillerlan/php-imagetiler/main.svg?logo=travis
-[travis]: https://travis-ci.com/chillerlan/php-imagetiler
 [coverage-badge]: https://img.shields.io/codecov/c/github/chillerlan/php-imagetiler.svg?logo=codecov
 [coverage]: https://codecov.io/github/chillerlan/php-imagetiler
 [scrutinizer-badge]: https://img.shields.io/scrutinizer/g/chillerlan/php-imagetiler.svg?logo=scrutinizer
