@@ -23,15 +23,9 @@ use function ceil, dirname, extension_loaded, function_exists, ini_get, ini_set,
 class Imagetiler implements LoggerAwareInterface{
 	use LoggerAwareTrait;
 
-	/**
-	 * @var \chillerlan\Imagetiler\ImagetilerOptions
-	 */
-	protected $options;
-
-	/**
-	 * @var \ImageOptimizer\Optimizer
-	 */
-	protected $optimizer;
+	/** @var \chillerlan\Imagetiler\ImagetilerOptions */
+	protected SettingsContainerInterface $options;
+	protected ?Optimizer $optimizer = null;
 
 	/**
 	 * Imagetiler constructor.

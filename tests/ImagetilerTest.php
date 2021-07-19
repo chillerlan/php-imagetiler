@@ -21,10 +21,7 @@ use ReflectionClass, ReflectionMethod;
  */
 class ImagetilerTest extends TestCase{
 
-	/**
-	 * @var \ReflectionClass
-	 */
-	protected $reflection;
+	protected ReflectionClass $reflection;
 
 	protected function setUp():void{
 		$this->reflection = new ReflectionClass(Imagetiler::class);

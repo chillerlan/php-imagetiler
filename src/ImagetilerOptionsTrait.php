@@ -23,22 +23,21 @@ trait ImagetilerOptionsTrait{
 	 *
 	 * @var int
 	 */
-	protected $tile_size = 256;
+	protected int $tile_size = 256;
 
 	/**
 	 * minimum zoom level
 	 *
 	 * @var int
 	 */
-
-	protected $zoom_min = 0;
+	protected int $zoom_min = 0;
 
 	/**
 	 * maximum zoom level
 	 *
 	 * @var int
 	 */
-	protected $zoom_max = 8;
+	protected int $zoom_max = 8;
 
 	/**
 	 * normalize zoom level
@@ -52,7 +51,7 @@ trait ImagetilerOptionsTrait{
 	 *
 	 * @var int
 	 */
-	protected $zoom_normalize = null;
+	protected ?int $zoom_normalize = null;
 
 	/**
 	 * if set to true - the origin will be set to bottom left, +y upwards
@@ -64,21 +63,20 @@ trait ImagetilerOptionsTrait{
 	 *
 	 * @var bool
 	 */
-	protected $tms = false;
+	protected bool $tms = false;
 
 	/**
 	 * fill color can be transparent for png
 	 *
 	 * @var string
 	 */
-
-	protected $fill_color = '#000000';
+	protected string $fill_color = '#000000';
 
 	/**
 	 * @see https://secure.php.net/manual/ini.core.php#ini.memory-limit
 	 * @var string
 	 */
-	protected $memory_limit = '-1';
+	protected string $memory_limit = '-1';
 
 	/**
 	 * %1$d - zoom
@@ -88,44 +86,44 @@ trait ImagetilerOptionsTrait{
 	 * @see https://secure.php.net/manual/function.sprintf.php
 	 * @var string
 	 */
-	protected $store_structure = '%1$d/%2$d/%3$d';
+	protected string $store_structure = '%1$d/%2$d/%3$d';
 
 	/**
 	 * determines whether to use fast scaleImage (true) or slow resizeImage (false)
 	 *
 	 * @var bool
 	 */
-	protected $fast_resize_upsample = false;
+	protected bool $fast_resize_upsample = false;
 
 	/**
 	 * @see https://secure.php.net/manual/imagick.constants.php
 	 * @see http://www.imagemagick.org/Usage/filter/nicolas/
 	 * @var int
 	 */
-	protected $resize_filter_upsample = Imagick::FILTER_ROBIDOUXSHARP;
+	protected int $resize_filter_upsample = Imagick::FILTER_ROBIDOUXSHARP;
 
 	/**
 	 * @var float
 	 */
-	protected $resize_blur_upsample = 1.0;
+	protected float $resize_blur_upsample = 1.0;
 
 	/**
 	 * determines whether to use fast scaleImage (true) or slow resizeImage (false)
 	 *
 	 * @var bool
 	 */
-	protected $fast_resize_downsample = false;
+	protected bool $fast_resize_downsample = false;
 
 	/**
 	 * @see https://secure.php.net/manual/imagick.constants.php
 	 * @var int
 	 */
-	protected $resize_filter_downsample = Imagick::FILTER_LANCZOSRADIUS;
+	protected int $resize_filter_downsample = Imagick::FILTER_LANCZOSRADIUS;
 
 	/**
 	 * @var float
 	 */
-	protected $resize_blur_downsample = 1.0;
+	protected float $resize_blur_downsample = 1.0;
 
 	/**
 	 * image format used for storing the tiles: jpeg or png
@@ -134,48 +132,48 @@ trait ImagetilerOptionsTrait{
 	 *
 	 * @var string
 	 */
-	protected $tile_format = 'png';
+	protected string $tile_format = 'png';
 
 	/**
 	 * tile image extension - autodetected from format if none given
 	 *
 	 * @var string
 	 */
-	protected $tile_ext = null;
+	protected ? string$tile_ext = null;
 
 	/**
 	 * quality of the saved image in jpeg format
 	 *
 	 * @var int
 	 */
-	protected $quality_jpeg = 80;
+	protected int $quality_jpeg = 80;
 
 	/**
 	 * @var bool
 	 */
-	protected $overwrite_base_image = false;
+	protected bool $overwrite_base_image = false;
 
 	/**
 	 * @var bool
 	 */
-	protected $overwrite_tile_image = false;
+	protected bool $overwrite_tile_image = false;
 
 	/**
 	 * @var bool
 	 */
-	protected $clean_up = true;
+	protected bool $clean_up = true;
 
 	/**
 	 * @var bool
 	 */
-	protected $optimize_output = false;
+	protected bool $optimize_output = false;
 
 	/**
 	 * don't create temporary base images
 	 *
 	 * @var bool
 	 */
-	protected $no_temp_baseimages = false;
+	protected bool $no_temp_baseimages = false;
 
 	/**
 	 * @param int $zoom_min
