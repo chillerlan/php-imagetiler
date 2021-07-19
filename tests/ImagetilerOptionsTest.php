@@ -2,9 +2,7 @@
 /**
  * Class ImagetilerOptionsTest
  *
- * @filesource   ImagetilerOptionsTest.php
  * @created      09.09.2019
- * @package      chillerlan\ImagetilerTest
  * @author       smiley <smiley@chillerlan.net>
  * @copyright    2019 smiley
  * @license      MIT
