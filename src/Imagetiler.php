@@ -54,7 +54,7 @@ class Imagetiler implements LoggerAwareInterface{
 			throw new ImagetilerException('could not alter ini settings');
 		}
 
-		if(ini_get('memory_limit') !== (string)$this->options->memory_limit){
+		if(ini_get('memory_limit') !== $this->options->memory_limit){
 			throw new ImagetilerException('ini settings differ from options');
 		}
 
@@ -91,6 +91,7 @@ class Imagetiler implements LoggerAwareInterface{
 		// prepare the zoom base images
 		$base_images = $this->prepareZoomBaseImages($image_path, $out_path);
 
+		// if no temp images are requested, exit here as the processing was handled already
 		if($this->options->no_temp_baseimages === true){
 			return $this;
 		}
