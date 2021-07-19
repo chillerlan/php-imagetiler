@@ -1,37 +1,38 @@
 # php-imagetiler
 
-A script for PHP 7.2+ to cut images (maps) into pieces (tiles). Based on the [map tiler script by Fedik](https://github.com/Fedik/php-maptiler).
+A script for PHP 7.4+ to cut images (maps) into pieces (tiles). Based on the [map tiler script by Fedik](https://github.com/Fedik/php-maptiler).
 This script will keep the proportions of the input image and generate only necessary tiles - no need for square input files!
 
+[![PHP Version Support][php-badge]][php]
 [![Packagist version][packagist-badge]][packagist]
 [![License][license-badge]][license]
 [![Travis CI][travis-badge]][travis]
 [![CodeCov][coverage-badge]][coverage]
 [![Scrunitizer CI][scrutinizer-badge]][scrutinizer]
-[![Packagist downloads][downloads-badge]][downloads]
-[![PayPal donate][donate-badge]][donate]
+[![Packagist downloads][downloads-badge]][downloads]<br/>
+[![Continuous Integration][gh-action-badge]][gh-action]
 
-[packagist-badge]: https://img.shields.io/packagist/v/chillerlan/php-imagetiler.svg?style=flat-square
+[php-badge]: https://img.shields.io/packagist/php-v/chillerlan/php-imagetiler?logo=php&color=8892BF
+[php]: https://www.php.net/supported-versions.php
+[packagist-badge]: https://img.shields.io/packagist/v/chillerlan/php-imagetiler.svg?logo=packagist
 [packagist]: https://packagist.org/packages/chillerlan/php-imagetiler
-[license-badge]: https://img.shields.io/github/license/chillerlan/php-imagetiler.svg?style=flat-square
-[license]: https://github.com/chillerlan/php-imagetiler/blob/master/LICENSE
-[travis-badge]: https://img.shields.io/travis/chillerlan/php-imagetiler.svg?style=flat-square
-[travis]: https://travis-ci.org/chillerlan/php-imagetiler
-[coverage-badge]: https://img.shields.io/codecov/c/github/chillerlan/php-imagetiler.svg?style=flat-square
+[license-badge]: https://img.shields.io/github/license/chillerlan/php-imagetiler.svg
+[license]: https://github.com/chillerlan/php-imagetiler/blob/main/LICENSE
+[travis-badge]: https://img.shields.io/travis/com/chillerlan/php-imagetiler/main.svg?logo=travis
+[travis]: https://travis-ci.com/chillerlan/php-imagetiler
+[coverage-badge]: https://img.shields.io/codecov/c/github/chillerlan/php-imagetiler.svg?logo=codecov
 [coverage]: https://codecov.io/github/chillerlan/php-imagetiler
-[scrutinizer-badge]: https://img.shields.io/scrutinizer/g/chillerlan/php-imagetiler.svg?style=flat-square
+[scrutinizer-badge]: https://img.shields.io/scrutinizer/g/chillerlan/php-imagetiler.svg?logo=scrutinizer
 [scrutinizer]: https://scrutinizer-ci.com/g/chillerlan/php-imagetiler
-[gemnasium-badge]: https://img.shields.io/gemnasium/chillerlan/php-imagetiler.svg?style=flat-square
-[gemnasium]: https://gemnasium.com/github.com/chillerlan/php-imagetiler
-[downloads-badge]: https://img.shields.io/packagist/dt/chillerlan/php-imagetiler.svg?style=flat-square
+[downloads-badge]: https://img.shields.io/packagist/dt/chillerlan/php-imagetiler.svg?logo=packagist
 [downloads]: https://packagist.org/packages/chillerlan/php-imagetiler/stats
-[donate-badge]: https://img.shields.io/badge/donate-paypal-ff33aa.svg?style=flat-square
-[donate]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WLYUNAT9ZTJZ4
+[gh-action-badge]: https://github.com/chillerlan/php-imagetiler/workflows/Continuous%20Integration/badge.svg
+[gh-action]: https://github.com/chillerlan/php-imagetiler/actions?query=workflow%3A%22Continuous+Integration%22
 
 # Documentation
 
 ## Requirements
-- PHP 7.2+
+- PHP 7.4+
 - the [ImageMagick extension](https://www.imagemagick.org)
 - a crapload of RAM, CPU power and free disk space
 - image optimization utilities (optional), see [psliwa/image-optimizer](https://github.com/psliwa/image-optimizer#supported-optimizers)
@@ -39,13 +40,13 @@ This script will keep the proportions of the input image and generate only neces
 ## Installation
 **requires [composer](https://getcomposer.org)**
 
-*composer.json* (note: replace `dev-master` with a version boundary)
+*composer.json* (note: replace `dev-main` with a version boundary)
 ```json
 {
 	"require": {
 		"php": ">=7.2.0",
 		"ext-imagick": "*",
-		"chillerlan/php-imagetiler": "dev-master"
+		"chillerlan/php-imagetiler": "dev-main"
 	}
 }
 ```
@@ -53,7 +54,7 @@ This script will keep the proportions of the input image and generate only neces
 Profit!
 
 ## Usage
-Use the [example](https://github.com/chillerlan/php-imagetiler/blob/master/examples/imagetiler.php) for live testing.
+Use the [example](https://github.com/chillerlan/php-imagetiler/blob/main/examples/imagetiler.php) for live testing.
 ```php
 // invoke an options instance
 $options = new ImagetilerOptions([
@@ -77,7 +78,7 @@ $tiler->process('/path/to/image.png', '/path/to/output/');
 That's it!
 
 ### Memory trouble
-If you're running into issues with ImageMagick complaining about not enough space on the cache path, you might want to check the [`policy.xml`](https://github.com/ImageMagick/ImageMagick/blob/master/config/policy.xml) in the ImageMagick installation path (on Windows).
+If you're running into issues with ImageMagick complaining about not enough space on the cache path, you might want to check the [`policy.xml`](https://github.com/ImageMagick/ImageMagick/blob/main/config/policy.xml) in the ImageMagick installation path (on Windows).
 For your consideration: an image of 49152x49152 will generate a cache file of ~28.5GB, 
 ### Image optimizers
 
@@ -95,7 +96,7 @@ For your consideration: an image of 49152x49152 will generate a cache file of ~2
 ### `Imagetiler` public methods
 method | return | description
 ------ | ------ | -----------
-`__construct(ContainerInterface $options = null, LoggerInterface $logger = null)` | - | see [`SettingsContainerInterface`](https://github.com/chillerlan/php-settings-container/blob/master/src/SettingsContainerInterface.php) and [`LoggerInterface`](https://github.com/php-fig/log). Invokes an empty `ImagetilerOptions` object and a `Psr\NullLogger` if the respective parameters aren't set.
+`__construct(ContainerInterface $options = null, LoggerInterface $logger = null)` | - | see [`SettingsContainerInterface`](https://github.com/chillerlan/php-settings-container/blob/main/src/SettingsContainerInterface.php) and [`LoggerInterface`](https://github.com/php-fig/log). Invokes an empty `ImagetilerOptions` object and a `Psr\NullLogger` if the respective parameters aren't set.
 `setOptions(ContainerInterface $options)` | `Imagetiler` | set options on-the-fly, called internally by the constructor
 `setOptimizer(Optimizer $optimizer)` | `Imagetiler` | set an optimizer instance on-the-fly, called internally by the constructor
 `process(string $image_path, string $out_path)` | `Imagetiler` | processes the given image from `$image_path` and dumps the output to `$out_path`
