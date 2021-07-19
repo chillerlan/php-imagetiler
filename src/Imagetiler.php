@@ -2,9 +2,7 @@
 /**
  * Class Imagetiler
  *
- * @filesource   Imagetiler.php
  * @created      20.06.2018
- * @package      chillerlan\Imagetiler
  * @author       smiley <smiley@chillerlan.net>
  * @copyright    2018 smiley
  * @license      MIT
@@ -30,10 +28,6 @@ class Imagetiler implements LoggerAwareInterface{
 	/**
 	 * Imagetiler constructor.
 	 *
-	 * @param \chillerlan\Settings\SettingsContainerInterface|null $options
-	 * @param \ImageOptimizer\Optimizer                            $optimizer
-	 * @param \Psr\Log\LoggerInterface|null                        $logger
-	 *
 	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
 	public function __construct(SettingsContainerInterface $options = null, Optimizer $optimizer = null, LoggerInterface $logger = null){
@@ -51,9 +45,6 @@ class Imagetiler implements LoggerAwareInterface{
 	}
 
 	/**
-	 * @param \chillerlan\Settings\SettingsContainerInterface $options
-	 *
-	 * @return \chillerlan\Imagetiler\Imagetiler
 	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
 	public function setOptions(SettingsContainerInterface $options):Imagetiler{
@@ -71,9 +62,6 @@ class Imagetiler implements LoggerAwareInterface{
 	}
 
 	/**
-	 * @param \ImageOptimizer\Optimizer $optimizer
-	 *
-	 * @return \chillerlan\Imagetiler\Imagetiler
 	 */
 	public function setOptimizer(Optimizer $optimizer):Imagetiler{
 		$this->optimizer = $optimizer;
@@ -82,10 +70,6 @@ class Imagetiler implements LoggerAwareInterface{
 	}
 
 	/**
-	 * @param string $image_path
-	 * @param string $out_path
-	 *
-	 * @return \chillerlan\Imagetiler\Imagetiler
 	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
 	public function process(string $image_path, string $out_path):Imagetiler{
@@ -142,11 +126,6 @@ class Imagetiler implements LoggerAwareInterface{
 
 	/**
 	 * prepare base images for each zoom level
-	 *
-	 * @param string $image_path
-	 * @param string $out_path
-	 *
-	 * @return array
 	 */
 	protected function prepareZoomBaseImages(string $image_path, string $out_path):array{
 		$base_images = [];
@@ -205,14 +184,7 @@ class Imagetiler implements LoggerAwareInterface{
 	}
 
 	/**
-	 * @param \Imagick $im
-	 * @param int      $w
-	 * @param int      $h
-	 * @param bool     $fast
-	 * @param int      $filter
-	 * @param float    $blur
 	 *
-	 * @return void
 	 */
 	protected function scale(Imagick $im, int $w, int $h, bool $fast, int $filter, float $blur):void{
 		$fast === true
@@ -224,12 +196,6 @@ class Imagetiler implements LoggerAwareInterface{
 
 	/**
 	 * create tiles for each zoom level
-	 *
-	 * @param \Imagick $im
-	 * @param int      $zoom
-	 * @param string   $out_path
-	 *
-	 * @return void
 	 */
 	protected function createTilesForZoom(Imagick $im, int $zoom, string $out_path):void{
 		$im->setColorspace(Imagick::COLORSPACE_SRGB);
@@ -290,11 +256,6 @@ class Imagetiler implements LoggerAwareInterface{
 	/**
 	 * save image in to destination
 	 *
-	 * @param Imagick $image
-	 * @param string  $dest full path with file name
-	 * @param bool    $optimize
-	 *
-	 * @return void
 	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
 	protected function saveImage(Imagick $image, string $dest, bool $optimize):void{
@@ -323,10 +284,6 @@ class Imagetiler implements LoggerAwareInterface{
 
 	/**
 	 * free resources, destroy imagick object
-	 *
-	 * @param \Imagick|null $image
-	 *
-	 * @return bool
 	 */
 	protected function clearImage(Imagick $image = null):bool{
 
@@ -341,10 +298,6 @@ class Imagetiler implements LoggerAwareInterface{
 
 	/**
 	 * calculate the image size for the given zoom level
-	 *
-	 * @param int $width
-	 * @param int $height
-	 * @param int $zoom
 	 *
 	 * @return int[]
 	 */

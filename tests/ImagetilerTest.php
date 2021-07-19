@@ -2,9 +2,7 @@
 /**
  * Class ImagetilerTest
  *
- * @filesource   ImagetilerTest.php
  * @created      20.06.2018
- * @package      chillerlan\ImagetilerTest
  * @author       smiley <smiley@chillerlan.net>
  * @copyright    2018 smiley
  * @license      MIT
@@ -17,8 +15,6 @@ use chillerlan\Imagetiler\ImagetilerOptions;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass, ReflectionMethod;
 
-/**
- */
 class ImagetilerTest extends TestCase{
 
 	protected ReflectionClass $reflection;
@@ -61,6 +57,5 @@ class ImagetilerTest extends TestCase{
 
 		return $method;
 	}
-
 
 }

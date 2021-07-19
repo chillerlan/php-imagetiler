@@ -2,9 +2,7 @@
 /**
  * Trait ImagetilerOptionsTrait
  *
- * @filesource   ImagetilerOptionsTrait.php
  * @created      20.06.2018
- * @package      chillerlan\Imagetiler
  * @author       smiley <smiley@chillerlan.net>
  * @copyright    2018 smiley
  * @license      MIT
@@ -20,22 +18,16 @@ trait ImagetilerOptionsTrait{
 
 	/**
 	 * width/height of a single tile
-	 *
-	 * @var int
 	 */
 	protected int $tile_size = 256;
 
 	/**
 	 * minimum zoom level
-	 *
-	 * @var int
 	 */
 	protected int $zoom_min = 0;
 
 	/**
 	 * maximum zoom level
-	 *
-	 * @var int
 	 */
 	protected int $zoom_max = 8;
 
@@ -48,8 +40,6 @@ trait ImagetilerOptionsTrait{
 	 * some time and resources depending on the size of the input image.
 	 *
 	 * Defaults to $zoom_max
-	 *
-	 * @var int
 	 */
 	protected ?int $zoom_normalize = null;
 
@@ -60,21 +50,16 @@ trait ImagetilerOptionsTrait{
 	 *
 	 * otherwise the origin is on the top left, +y downwards (default)
 	 * @see https://developers.google.com/maps/documentation/javascript/coordinates#tile-coordinates
-	 *
-	 * @var bool
 	 */
 	protected bool $tms = false;
 
 	/**
 	 * fill color can be transparent for png
-	 *
-	 * @var string
 	 */
 	protected string $fill_color = '#000000';
 
 	/**
 	 * @see https://secure.php.net/manual/ini.core.php#ini.memory-limit
-	 * @var string
 	 */
 	protected string $memory_limit = '-1';
 
@@ -84,44 +69,37 @@ trait ImagetilerOptionsTrait{
 	 * %3$d - y
 	 *
 	 * @see https://secure.php.net/manual/function.sprintf.php
-	 * @var string
 	 */
 	protected string $store_structure = '%1$d/%2$d/%3$d';
 
 	/**
 	 * determines whether to use fast scaleImage (true) or slow resizeImage (false)
-	 *
-	 * @var bool
 	 */
 	protected bool $fast_resize_upsample = false;
 
 	/**
 	 * @see https://secure.php.net/manual/imagick.constants.php
 	 * @see http://www.imagemagick.org/Usage/filter/nicolas/
-	 * @var int
 	 */
 	protected int $resize_filter_upsample = Imagick::FILTER_ROBIDOUXSHARP;
 
 	/**
-	 * @var float
+	 *
 	 */
 	protected float $resize_blur_upsample = 1.0;
 
 	/**
 	 * determines whether to use fast scaleImage (true) or slow resizeImage (false)
-	 *
-	 * @var bool
 	 */
 	protected bool $fast_resize_downsample = false;
 
 	/**
 	 * @see https://secure.php.net/manual/imagick.constants.php
-	 * @var int
 	 */
 	protected int $resize_filter_downsample = Imagick::FILTER_LANCZOSRADIUS;
 
 	/**
-	 * @var float
+	 *
 	 */
 	protected float $resize_blur_downsample = 1.0;
 
@@ -129,72 +107,60 @@ trait ImagetilerOptionsTrait{
 	 * image format used for storing the tiles: jpeg or png
 	 *
 	 * @see http://www.imagemagick.org/script/formats.php
-	 *
-	 * @var string
 	 */
 	protected string $tile_format = 'png';
 
 	/**
 	 * tile image extension - autodetected from format if none given
-	 *
-	 * @var string
 	 */
 	protected ? string$tile_ext = null;
 
 	/**
 	 * quality of the saved image in jpeg format
-	 *
-	 * @var int
 	 */
 	protected int $quality_jpeg = 80;
 
 	/**
-	 * @var bool
+	 *
 	 */
 	protected bool $overwrite_base_image = false;
 
 	/**
-	 * @var bool
+	 *
 	 */
 	protected bool $overwrite_tile_image = false;
 
 	/**
-	 * @var bool
+	 *
 	 */
 	protected bool $clean_up = true;
 
 	/**
-	 * @var bool
+	 *
 	 */
 	protected bool $optimize_output = false;
 
 	/**
 	 * don't create temporary base images
-	 *
-	 * @var bool
 	 */
 	protected bool $no_temp_baseimages = false;
 
 	/**
-	 * @param int $zoom_min
 	 *
-	 * @return void
 	 */
 	protected function set_zoom_min(int $zoom_min):void{
 		$this->zoom_min = max(0, $zoom_min);
 	}
 
 	/**
-	 * @param int $zoom_max
 	 *
-	 * @return void
 	 */
 	protected function set_zoom_max(int $zoom_max):void{
 		$this->zoom_max = max(0, $zoom_max);
 	}
 
 	/**
-	 * @return string
+	 *
 	 */
 	protected function get_tile_ext():string{
 		return $this->tile_ext ?? $this->getExtension($this->tile_format);
@@ -203,9 +169,6 @@ trait ImagetilerOptionsTrait{
 	/**
 	 * return file extension depending on given format
 	 *
-	 * @param string $format
-	 *
-	 * @return string
 	 * @throws \chillerlan\Imagetiler\ImagetilerException
 	 */
 	protected function getExtension(string $format):string{
