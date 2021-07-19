@@ -46,7 +46,7 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-#          - windows-latest # imagick is still not available for php8-win and honestly i do not care
+          - windows-latest
         php-version:
           - "7.4"
           - "8.0"
@@ -60,6 +60,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-version }}
           coverage: pcov
+          tools: pecl
           extensions: imagick, json
 
       - name: "Install dependencies with composer"
