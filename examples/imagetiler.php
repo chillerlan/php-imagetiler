@@ -1,6 +1,5 @@
 <?php
 /**
- * @filesource   imagetiler.php
  * @created      20.06.2018
  * @author       smiley <smiley@chillerlan.net>
  * @copyright    2018 smiley
