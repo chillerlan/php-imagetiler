@@ -6,25 +6,22 @@ This script will keep the proportions of the input image and generate only neces
 [![PHP Version Support][php-badge]][php]
 [![Packagist version][packagist-badge]][packagist]
 [![License][license-badge]][license]
-[![CodeCov][coverage-badge]][coverage]
-[![Scrunitizer CI][scrutinizer-badge]][scrutinizer]
-[![Packagist downloads][downloads-badge]][downloads]<br/>
 [![Continuous Integration][gh-action-badge]][gh-action]
+[![CodeCov][coverage-badge]][coverage]
+[![Packagist downloads][downloads-badge]][downloads]
 
-[php-badge]: https://img.shields.io/packagist/php-v/chillerlan/php-imagetiler?logo=php&color=8892BF
+[php-badge]: https://img.shields.io/packagist/php-v/chillerlan/php-imagetiler?logo=php&color=8892BF&logoColor=fff
 [php]: https://www.php.net/supported-versions.php
-[packagist-badge]: https://img.shields.io/packagist/v/chillerlan/php-imagetiler.svg?logo=packagist
+[packagist-badge]: https://img.shields.io/packagist/v/chillerlan/php-imagetiler.svg?logo=packagist&logoColor=fff
 [packagist]: https://packagist.org/packages/chillerlan/php-imagetiler
 [license-badge]: https://img.shields.io/github/license/chillerlan/php-imagetiler.svg
 [license]: https://github.com/chillerlan/php-imagetiler/blob/main/LICENSE
-[coverage-badge]: https://img.shields.io/codecov/c/github/chillerlan/php-imagetiler.svg?logo=codecov
-[coverage]: https://codecov.io/github/chillerlan/php-imagetiler
-[scrutinizer-badge]: https://img.shields.io/scrutinizer/g/chillerlan/php-imagetiler.svg?logo=scrutinizer
-[scrutinizer]: https://scrutinizer-ci.com/g/chillerlan/php-imagetiler
-[downloads-badge]: https://img.shields.io/packagist/dt/chillerlan/php-imagetiler.svg?logo=packagist
-[downloads]: https://packagist.org/packages/chillerlan/php-imagetiler/stats
-[gh-action-badge]: https://github.com/chillerlan/php-imagetiler/workflows/Continuous%20Integration/badge.svg
+[gh-action-badge]: https://img.shields.io/github/actions/workflow/status/chillerlan/php-imagetiler/ci.yml?branch=main&logo=github&logoColor=fff
 [gh-action]: https://github.com/chillerlan/php-imagetiler/actions?query=workflow%3A%22Continuous+Integration%22
+[coverage-badge]: https://img.shields.io/codecov/c/github/chillerlan/php-imagetiler.svg?logo=codecov&logoColor=fff
+[coverage]: https://codecov.io/github/chillerlan/php-imagetiler
+[downloads-badge]: https://img.shields.io/packagist/dt/chillerlan/php-imagetiler.svg?logo=packagist&logoColor=fff
+[downloads]: https://packagist.org/packages/chillerlan/php-imagetiler/stats
 
 # Documentation
 
@@ -41,7 +38,7 @@ This script will keep the proportions of the input image and generate only neces
 ```json
 {
 	"require": {
-		"php": ">=7.4.0",
+		"php": "^7.4 || ^8.0",
 		"ext-imagick": "*",
 		"chillerlan/php-imagetiler": "dev-main"
 	}
