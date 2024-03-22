@@ -19,7 +19,7 @@
 		"php": "^7.4 || ^8.0",
 		"ext-imagick": "*",
 		"chillerlan/php-settings-container": "^2.1.5",
-		"ps/image-optimizer": "^2.0.5",
+		"codemasher/image-optimizer": "^2.1",
 		"psr/log": "^1.1 || ^2.0 || ^3.0"
 	},
 	"require-dev": {
