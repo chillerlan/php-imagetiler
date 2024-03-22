@@ -113,7 +113,7 @@ trait ImagetilerOptionsTrait{
 	/**
 	 * tile image extension - autodetected from format if none given
 	 */
-	protected ? string$tile_ext = null;
+	protected ?string $tile_ext = null;
 
 	/**
 	 * quality of the saved image in jpeg format
